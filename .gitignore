@@ -1,0 +1,19 @@
+# Virtual environment
+env/
+
+# IDE
+.vscode/
+
+# Compiled files
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+*.log
+
+# Database
+*.sqlite3
+
+# Secret keys
+*.env
