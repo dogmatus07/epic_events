@@ -1,11 +1,12 @@
 from crm.models.models import Client
 from crm.db.session import SessionLocal
 
+
 class ClientController:
     """
     Controller class for Client model.
     """
-    
+
     @staticmethod
     def get_all_clients():
         """
@@ -17,7 +18,15 @@ class ClientController:
         return clients
 
     @staticmethod
-    def create_client(email, full_name, phone, company_name, first_contact_date, last_update_date, commercial_id):
+    def create_client(
+        email,
+        full_name,
+        phone,
+        company_name,
+        first_contact_date,
+        last_update_date,
+        commercial_id,
+    ):
         """
         Create a new client.
         """
@@ -29,15 +38,24 @@ class ClientController:
             company_name=company_name,
             first_contact_date=first_contact_date,
             last_update_date=last_update_date,
-            commercial_id=commercial_id
+            commercial_id=commercial_id,
         )
         db.add(client)
         db.commit()
         db.close()
         return client
-    
+
     @staticmethod
-    def update_client(client_id, email, full_name, phone, company_name, first_contact_date, last_update_date, commercial_id):
+    def update_client(
+        client_id,
+        email,
+        full_name,
+        phone,
+        company_name,
+        first_contact_date,
+        last_update_date,
+        commercial_id,
+    ):
         """
         Update a client.
         """
@@ -53,7 +71,7 @@ class ClientController:
         db.commit()
         db.close()
         return client
-    
+
     @staticmethod
     def delete_client(client_id):
         """
@@ -65,4 +83,3 @@ class ClientController:
         db.commit()
         db.close()
         return client
-    

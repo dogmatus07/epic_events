@@ -6,6 +6,7 @@ class UserController:
     """
     Controller class for User model.
     """
+
     @staticmethod
     def get_all_users():
         """
@@ -15,8 +16,7 @@ class UserController:
         users = db.query(User).all()
         db.close()
         return users
-    
-    
+
     @staticmethod
     def create_user(username, email, phone_number, role_name):
         """
@@ -26,14 +26,13 @@ class UserController:
             username=username,
             email=email,
             phone_number=phone_number,
-            role_name=role_name
+            role_name=role_name,
         )
         db.add(user)
         db.commit()
         db.close()
         return user
-    
-    
+
     @staticmethod
     def update_user(user_id, username, email, phone_number, role_name):
         """
@@ -48,8 +47,7 @@ class UserController:
         db.commit()
         db.close()
         return user
-    
-    
+
     @staticmethod
     def delete_user(user_id):
         """

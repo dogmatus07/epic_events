@@ -6,6 +6,7 @@ class RoleController:
     """
     Controller class for Role model.
     """
+
     @staticmethod
     def get_all_roles():
         """
@@ -15,8 +16,7 @@ class RoleController:
         roles = db.query(Role).all()
         db.close()
         return roles
-    
-    
+
     @staticmethod
     def create_role(role_name):
         """
@@ -28,8 +28,7 @@ class RoleController:
         db.commit()
         db.close()
         return role
-    
-    
+
     @staticmethod
     def delete_role(role_id):
         """
@@ -41,8 +40,7 @@ class RoleController:
         db.commit()
         db.close()
         return role
-    
-    
+
     @staticmethod
     def update_role(role_id, role_name):
         """
@@ -54,4 +52,3 @@ class RoleController:
         db.commit()
         db.close()
         return role
-    

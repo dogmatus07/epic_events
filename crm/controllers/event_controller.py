@@ -1,10 +1,12 @@
 from crm.models.models import Event
 from crm.db.session import SessionLocal
 
+
 class EventController:
     """
     Controller class for Event model.
     """
+
     @staticmethod
     def get_all_events():
         """
@@ -14,13 +16,21 @@ class EventController:
         events = db.query(Event).all()
         db.close()
         return events
-    
+
     @staticmethod
-    def create_event(contract_id, event_date_start, event_date_end, location, attendees, notes, support_id):
+    def create_event(
+        contract_id,
+        event_date_start,
+        event_date_end,
+        location,
+        attendees,
+        notes,
+        support_id,
+    ):
         """
         Create a new event.
         """
-        
+
         db = SessionLocal()
         event = Event(
             contract_id=contract_id,
@@ -29,15 +39,24 @@ class EventController:
             location=location,
             attendees=attendees,
             notes=notes,
-            support_id=support_id
+            support_id=support_id,
         )
         db.add(event)
         db.commit()
         db.close()
         return event
-    
+
     @staticmethod
-    def update_event(event_id, contract_id, event_date_start, event_date_end, location, attendees, notes, support_id):
+    def update_event(
+        event_id,
+        contract_id,
+        event_date_start,
+        event_date_end,
+        location,
+        attendees,
+        notes,
+        support_id,
+    ):
         """
         Update an event.
         """
@@ -53,7 +72,7 @@ class EventController:
         db.commit()
         db.close()
         return event
-    
+
     @staticmethod
     def delete_event(event_id):
         """
@@ -65,4 +84,3 @@ class EventController:
         db.commit()
         db.close()
         return event
-    
