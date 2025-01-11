@@ -7,7 +7,7 @@ if __name__ == "__main__":
     token = None
     while not token:
         token = authenticate_user()
-    
+
     # check the role of the user
     db_session = SessionLocal()
     auth_manager = AuthManager(db_session)
@@ -15,9 +15,9 @@ if __name__ == "__main__":
     if not payload:
         print("Token invalide ou expiré")
         exit()
-    
+
     role = payload["role"]
     print("Connexion réussie en tant que", role)
-    
+
     # display menu according to the role
     main_menu(role)

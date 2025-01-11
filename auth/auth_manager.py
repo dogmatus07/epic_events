@@ -24,10 +24,10 @@ class AuthManager:
         user = self.user_repository.get_user_by_email(email)
         if not user:
             return None
-        
+
         if not PasswordUtils.verify_password(password, user.password):
             return None
-        
+
         # generate token
         token = jwt.encode(
             {
@@ -38,7 +38,7 @@ class AuthManager:
             algorithm="HS256",
         )
         return token
-    
+
     def verify_token(self, token: str):
         """
         Check token validity
@@ -50,4 +50,3 @@ class AuthManager:
             return None
         except jwt.InvalidTokenError:
             return None
-        

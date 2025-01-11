@@ -42,21 +42,18 @@ class User(Base):
     clients = relationship("Client", back_populates="commercial")
     contracts = relationship("Contract", back_populates="commercial")
     events = relationship("Event", back_populates="support_contact")
-    
-    
+
     def set_password(self, password: str):
         """
         Set the password for the user
         """
         self.hashed_password = bcrypt.hash(password)
-    
-    
+
     def verify_password(self, password: str) -> bool:
         """
         Verify the password for the user
         """
         return bcrypt.verify(password, self.hashed_password)
-        
 
 
 class Client(Base):

@@ -30,15 +30,15 @@ def create_user(session):
     users = [
         # gestion users
         User(
-            id = uuid.uuid4(),
+            id=uuid.uuid4(),
             username="admin1",
             email="admin1@epicevents.com",
             phone_number="065849785",
             is_active=True,
-            role_name = "Gestion"            
+            role_name="Gestion"            
         ),
         User(
-            id = uuid.uuid4(),
+            id=uuid.uuid4(),
             username="admin2",
             email="admin2@epicevents.com",
             phone_number="065123496",
@@ -48,7 +48,7 @@ def create_user(session):
         
         # commercial users
         User(
-            id = uuid.uuid4(),
+            id=uuid.uuid4(),
             username="commercial1",
             email="commercial1@epicevents.com",
             phone_number="069963214",
@@ -56,7 +56,7 @@ def create_user(session):
             role_name="Commercial"
         ),
         User(
-            id = uuid.uuid4(),
+            id=uuid.uuid4(),
             username="commercial2",
             email="commercial2@epicevents.com",
             phone_number="064425816",
@@ -66,7 +66,7 @@ def create_user(session):
         
         # support users
         User(
-            id = uuid.uuid4(),
+            id=uuid.uuid4(),
             username="support1",
             email="support1@epicevents.com",
             phone_number="067784695",
@@ -74,7 +74,7 @@ def create_user(session):
             role_name="Support"
         ),
         User(
-            id = uuid.uuid4(),
+            id=uuid.uuid4(),
             username="support2",
             email="support2@epicevents.com",
             phone_number="061125694",
@@ -90,6 +90,7 @@ def create_user(session):
     session.add_all(users)
     session.commit()
     print("Utilisateurs créés avec succès !")
+
 
 def initialize_database():
     """
