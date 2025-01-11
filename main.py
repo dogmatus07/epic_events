@@ -1,7 +1,6 @@
-from views.views import authenticate_user, main_menu
+from crm.views.views import authenticate_user
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
-
 
 
 if __name__ == "__main__":

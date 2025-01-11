@@ -1,7 +1,7 @@
-from auth.auth_manager import AuthManager
-from crm.db.session import SessionLocal
 from rich.prompt import Prompt
 from rich.console import Console
+from auth.auth_manager import AuthManager
+from crm.db.session import SessionLocal
 
 console = Console()
 
@@ -14,8 +14,8 @@ def authenticate_user():
     auth_manager = AuthManager(db_session)
     
     console.print("Authentification requise", style="bold blue")
-    email = Prompt.ask("Email", style="bold green")
-    password = Prompt.ask("Mot de passe", style="bold green", password=True)
+    email = Prompt.ask("Email")
+    password = Prompt.ask("Mot de passe", password=True)
     
     token = auth_manager.authenticate(email, password)
     if token:
