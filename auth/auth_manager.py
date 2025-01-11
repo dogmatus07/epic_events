@@ -1,7 +1,7 @@
-import jwt
 import datetime
-from sqlalchemy import Session
-from repositories.user_repository import UserRepository
+import jwt
+from sqlalchemy.orm import Session
+from crm.repositories.user_repository import UserRepository
 from utils.password_utils import PasswordUtils
 
 

@@ -11,6 +11,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from crm.db.base import Base
+from passlib.hash import bcrypt
 
 
 class Role(Base):
@@ -35,11 +36,27 @@ class User(Base):
     phone_number = Column(String(15), unique=True, nullable=True)
     is_active = Column(Boolean, default=True)
     role_name = Column(String, ForeignKey("roles.role_name"))
+    hashed_password = Column(String, nullable=False)
 
     role = relationship("Role", back_populates="users")
     clients = relationship("Client", back_populates="commercial")
     contracts = relationship("Contract", back_populates="commercial")
     events = relationship("Event", back_populates="support_contact")
+    
+    
+    def set_password(self, password: str):
+        """
+        Set the password for the user
+        """
+        self.hashed_password = bcrypt.hash(password)
+    
+    
+    def verify_password(self, password: str) -> bool:
+        """
+        Verify the password for the user
+        """
+        return bcrypt.verify(password, self.hashed_password)
+        
 
 
 class Client(Base):
