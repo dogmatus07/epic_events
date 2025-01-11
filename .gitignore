@@ -14,7 +14,7 @@ env/
 
 # Database
 *.sqlite3
-crm/db/
+db/
 
 # Secret keys
 *.env
