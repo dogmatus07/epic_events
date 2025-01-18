@@ -16,9 +16,12 @@ def create_role(session):
     Create the roles
     """
     roles = ["Gestion", "Commercial", "Support"]
+    existing_roles = {role.role_name for role in session.query(Role).all()}
+        
     for role_name in roles:
-        role = Role(role_name=role_name)
-        session.add(role)
+        if role_name not in existing_roles:
+            role = Role(role_name=role_name)
+            session.add(role)
     session.commit()
     print("Roles créés avec succès !")
 
@@ -30,7 +33,7 @@ def create_user(session):
     users = [
         # gestion users
         User(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             username="admin1",
             email="admin1@epicevents.com",
             phone_number="065849785",
@@ -38,7 +41,7 @@ def create_user(session):
             role_name="Gestion"            
         ),
         User(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             username="admin2",
             email="admin2@epicevents.com",
             phone_number="065123496",
@@ -48,7 +51,7 @@ def create_user(session):
         
         # commercial users
         User(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             username="commercial1",
             email="commercial1@epicevents.com",
             phone_number="069963214",
@@ -56,7 +59,7 @@ def create_user(session):
             role_name="Commercial"
         ),
         User(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             username="commercial2",
             email="commercial2@epicevents.com",
             phone_number="064425816",
@@ -66,7 +69,7 @@ def create_user(session):
         
         # support users
         User(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             username="support1",
             email="support1@epicevents.com",
             phone_number="067784695",
@@ -74,7 +77,7 @@ def create_user(session):
             role_name="Support"
         ),
         User(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             username="support2",
             email="support2@epicevents.com",
             phone_number="061125694",
@@ -94,11 +97,17 @@ def create_user(session):
 
 def initialize_database():
     """
-    Initialize the database
+    Initialize the database and populate it
     """
     print("Création de la base de données...")
     Base.metadata.create_all(bind=engine)
     print("Base de données créée avec succès !")
+    
+    # create a session and populate the database
+    with SessionLocal() as session:
+        create_role(session)
+        create_user(session)
+    print("Base de données peuplée avec succès !")
 
 if __name__ == "__main__":
     initialize_database()
