@@ -1,4 +1,5 @@
 from crm.views.views import authenticate_user
+from crm.views.main_menu import main_menu
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
 
@@ -16,8 +17,12 @@ if __name__ == "__main__":
         print("Token invalide ou expiré")
         exit()
 
-    role = payload["role"]
-    print("Connexion réussie en tant que", role)
-
+    role = payload.get("role")
+    if not role:
+        print("Rôle non trouvé dans le token")
+        exit()
+    else:
+        print(f"Connexion réussie, Rôle: {role}")
+    
     # display menu according to the role
     main_menu(role)
