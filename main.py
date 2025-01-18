@@ -23,6 +23,6 @@ if __name__ == "__main__":
         exit()
     else:
         print(f"Connexion réussie, Rôle: {role}")
-    
+
     # display menu according to the role
     main_menu(role)

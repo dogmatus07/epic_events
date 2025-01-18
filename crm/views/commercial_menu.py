@@ -22,17 +22,17 @@ def commercial_menu():
         )
         table.add_column("Option", justify="center", style="cyan")
         table.add_column("Description", justify="left", style="white")
-        
+
         table.add_row("1", "Créer un client")
         table.add_row("2", "Mettre à jour un client")
         table.add_row("3", "Gérer les contrats")
         table.add_row("4", "Créer un événement")
         table.add_row("5", "Retour au menu principal")
-        
+
         console.print(table)
-        
+
         choice = Prompt.ask("Entrez votre choix : ")
-        
+
         if choice == "1":
             create_client()
         elif choice == "2":

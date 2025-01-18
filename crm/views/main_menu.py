@@ -20,7 +20,7 @@ def main_menu(role):
     )
     table.add_column("Option", justify="center", style="cyan")
     table.add_column("Description", justify="left", style="white")
-    
+
     if role == "Gestion":
         table.add_row("1", "Menu Gestion")
     elif role == "Commercial":
@@ -30,12 +30,12 @@ def main_menu(role):
     else:
         console.print("Rôle invalide", style="bold red")
         return
-    
+
     table.add_row("0", "Quitter")
     console.print(table)
-    
+
     choice = Prompt.ask("Entrez votre choix : ")
-    
+
     if choice == "1":
         if role == "Gestion":
             gestion_menu()

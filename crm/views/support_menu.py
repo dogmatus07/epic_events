@@ -17,20 +17,19 @@ def support_menu():
             show_header=False,
             show_lines=True,
             show_edge=False,
-            box=box.SIMPLE,
             header_style="bold magenta",
         )
         table.add_column("Option", justify="center", style="cyan")
         table.add_column("Description", justify="left", style="white")
-        
+
         table.add_row("1", "Lister mes événements")
         table.add_row("2", "Mettre à jour un événement")
         table.add_row("3", "Retour au menu principal")
-        
+
         console.print(table)
-        
+
         choice = Prompt.ask("Entrez votre choix : ")
-        
+
         if choice == "1":
             list_my_events()
         elif choice == "2":

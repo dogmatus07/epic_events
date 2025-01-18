@@ -18,15 +18,15 @@ def gestion_menu():
         )
         table.add_column("Option", style="dim")
         table.add_column("Description", justify="left")
-        
+
         table.add_row("1", "Gérer les collaborateurs")
         table.add_row("2", "Gérer les contrats")
         table.add_row("3", "Gérer les clients")
         table.add_row("4", "Gérer les événements")
         table.add_row("5", "Retour au menu principal")
-        
+
         console.print(table)
-        
+
         choice = input("Entrez votre choix: ")
         if choice == "1":
             manage_collaborators()

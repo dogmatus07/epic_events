@@ -33,7 +33,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(TEXT, primary_key=True, default=lambda: str(uuid.uuid4()))
     username = Column(String(50), unique=True, nullable=False)
-    email = Column(String(50), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
     phone_number = Column(String(15), unique=True, nullable=True)
     is_active = Column(Boolean, default=True)
     role_name = Column(String, ForeignKey("roles.role_name"))
@@ -65,7 +65,7 @@ class Client(Base):
     __tablename__ = "clients"
     id = Column(TEXT, primary_key=True, default=lambda: str(uuid.uuid4()))
     full_name = Column(String(50), nullable=False)
-    email = Column(String(50), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
     phone = Column(String(15), unique=True, nullable=True)
     company_name = Column(String(50), nullable=False)
     first_contact_date = Column(Date, nullable=False)
