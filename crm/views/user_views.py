@@ -3,10 +3,10 @@ from rich.table import Table
 from rich.panel import Panel
 from rich import box
 from rich.prompt import Prompt, Confirm
-from datetime import datetime
 
-from ..controllers import contract_controller, user_controller
-from ..views import user_views, contract_views
+from crm.controllers.role_controller import RoleController
+from crm.controllers.user_controller import UserController
+
 
 console = Console()
 
@@ -27,7 +27,7 @@ def display_user_list(users):
     table.add_column("[bold green]Date de création[/]")
 
     for user in users:
-        active_status = "✅ Yes" if user.is_active else "❌ No"
+        active_status = "✅ Oui" if user.is_active else "❌ Non"
         table.add_row(
             str(user.id),
             user.full_name,
@@ -35,12 +35,30 @@ def display_user_list(users):
             user.phone_number,
             user.role.role_name,
             active_status,
-            user.date_created
+            user.date_created.strftime("%d-%m-%Y")
         )
     console.print(Panel(table, title="👩‍💼 Utilisateurs", expand=False))
 
 
-def create_user():
+def select_user(users, default_id=None):
+    """
+    Display a list of users and ask the user to select one
+    """
+    if not users:
+        console.print("[bold red]❌ Aucun utilisateur disponible[/]")
+        return None
+
+    display_user_list(users)
+    user_ids = [str(user.id) for user in users]
+    selected_id = Prompt.ask(
+        "[bold cyan]Sélectionnez un utilisateur par son ID[/]",
+        default=default_id if default_id in user_ids else None,
+        choices=user_ids
+    )
+    return next((user for user in users if str(user.id) == selected_id), None)
+
+
+def create_user(db_session):
     """
     Display a form for creating a new user
     :return: dictionary with user data
@@ -62,9 +80,19 @@ def create_user():
         "[bold cyan]Activer l'utilisateur ?[/]",
         default=True
     )
+
+    # get the list of roles
+    roles = RoleController(db_session).get_all_roles()
+    if not roles:
+        console.print("[bold red]❌ Aucun rôle disponible pour créer un utilisateur[/]")
+        return None
+
+    console.print("[bold blue]Liste des rôles disponibles[/]")
+    for role in roles:
+        console.print(f"[bold green]{role.role_name}[/]")
+
     role_name = Prompt.ask(
-        "[bold cyan]Rôle de l'utilisateur[/]",
-        default="Gestion"
+        "[bold cyan]Rôle de l'utilisateur[/]", choices=[role.role_name for role in roles]
     )
     password = Prompt.ask(
         "[bold cyan]Mot de passe[/]",
@@ -81,10 +109,11 @@ def create_user():
     }
 
 
-def update_user(user):
+def update_user(user, db_session):
     """
     Display a form for updating a user
     :param user:
+    :param db_session:
     :return: updated user data
     """
     console.print(f"[bold blue]🔄 Modification de l'utilisateur : {user.full_name}🔄[/]\n")
@@ -105,16 +134,27 @@ def update_user(user):
         "[bold cyan]Activer l'utilisateur ?[/]",
         default=user.is_active
     )
-    role_name = Prompt.ask(
-        "[bold cyan]Rôle de l'utilisateur[/]",
-        default=user.role.role_name
-    )
+    # get available roles
+    roles = RoleController(db_session).get_all_roles()
+    if not roles:
+        console.print("[bold red]❌ Aucun rôle disponible pour créer un utilisateur[/]")
+        return None
+    else:
+        console.print("[bold blue]Liste des rôles disponibles[/]")
+        for role in roles:
+            console.print(f"[bold green]{role.role_name}[/]")
+        role_name = Prompt.ask(
+            "[bold cyan]Rôle de l'utilisateur[/]",
+            choices=[role.role_name for role in roles],
+            default=user.role.role_name
+        )
+
     password = Prompt.ask(
-        "[bold cyan]Mot de passe[/]",
-        password=True
+        "[bold cyan]Mot de passe[/] (laissez vide pour ne pas le changer)",
+        password=True, default=""
     )
 
-    return {
+    user_data = {
         "username": username,
         "email": email,
         "phone_number": phone_number,
@@ -122,6 +162,7 @@ def update_user(user):
         "role_name": role_name,
         "password": password
     }
+    return user_data
 
 
 def delete_user(user):
@@ -130,5 +171,9 @@ def delete_user(user):
     :param user:
     :return: None
     """
-    console.print(f"[bold red]⚠️ Suppression de l'utilisateur : {user.full_name}[/]")
-    return Confirm.ask("")
+    console.print(f"[bold red]⚠️ Suppression de l'utilisateur : {user.full_name} - {user.username} - {user.email}[/]")
+    return Confirm.ask("[bold red]⚠️ Voulez-vous vraiment supprimer cet utilisateur ?[/]", default=False)
+
+
+def user_menu():
+    return None

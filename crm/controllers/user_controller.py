@@ -65,3 +65,15 @@ class UserController:
         self.db_session.delete(user)
         self.db_session.commit()
         return True
+
+    def get_all_support_users(self):
+        """
+        Get all support users from the database.
+        """
+        return self.db_session.query(User).filter(User.role_name == "Support")
+
+    def get_all_commercial_users(self):
+        """
+        Get all commercial users from the database.
+        """
+        return self.db_session.query(User).filter(User.role_name == "Commercial")

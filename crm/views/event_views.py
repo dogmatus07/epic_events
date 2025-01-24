@@ -5,8 +5,11 @@ from rich.prompt import Prompt, Confirm
 from rich import box
 from datetime import datetime
 
-from ..controllers import contract_controller, user_controller
-from ..views import user_views, contract_views
+from crm.controllers.event_controller import EventController
+from crm.controllers.contract_controller import ContractController
+from crm.controllers.user_controller import UserController
+from contract_views import select_contract
+from user_views import select_user
 
 console = Console()
 
@@ -29,7 +32,7 @@ def display_events_list(events):
 
     for event in events:
         contract_id = event.contract.id if event.contract else "Non attribué"
-        support_name = event.support_contact.full_name if event.support_contact else "Non attribué"
+        support_contact = event.support_contact.full_name if event.support_contact else "Non attribué"
         table.add_row(
             str(event.id),
             contract_id,
@@ -37,14 +40,30 @@ def display_events_list(events):
             event.event_date_end.strftime("%d-%m-%Y"),
             event.location,
             str(event.attendees),
-            support_name,
+            support_contact,
             event.notes
         )
 
     console.print(Panel(table, title="📆 Evénements", expand=False))
 
 
-def create_event(db):
+def select_event(events):
+    """
+    Display a list of events and ask the user to select one
+    """
+    if not events:
+        console.print("[bold red]❌ Aucun événement disponible[/]")
+        return None
+
+    display_events_list(events)
+    event_index = Prompt.ask(
+        "[bold cyan]Sélectionnez un événement par son Index[/]",
+        choices=[str(i) for i in range(1, len(events) + 1)]
+    )
+    return events[int(event_index) - 1]
+
+
+def create_event(db_session):
     """
     Display a form for creating a new event
     :param db:
@@ -52,29 +71,22 @@ def create_event(db):
     """
     console.print("[bold blue]➕ Création d'un nouvel événement ➕[/]\n")
 
-    # display the list of contracts
-    contracts = contract_controller.get_contracts(db)
-    contract_views.display_contract_list(contracts)
-
-    # ask for the contract id
-    contract_ids = [str(contract.id) for contract in contracts]
-    if not contract_ids:
-        console.print("[bold red]❌ Aucun contrat disponible pour créer un événement[/]")
+    contracts = ContractController(db_session).get_all_contracts()
+    selected_contract = select_contract(contracts)
+    if not selected_contract:
+        console.print("[bold red]❌ Aucun contrat sélectionné pour créer un événement[/]")
         return None
 
-    contract_id = Prompt.ask("[bold cyan]ID du contrat[/]", choices=contract_ids)
-
-    # display the list of Support Users
-    support_users = user_controller.get_support_users(db)
-    user_views.display_user_list(support_users)
-
-    # ask for the support user id
-    support_ids = [str(user.id) for user in support_users]
-    if not support_ids:
+    support_users = UserController(db_session).get_all_support_users()
+    if not support_users:
         console.print("[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]")
         return None
 
-    support_id = Prompt.ask("[bold cyan]ID de l'utilisateur de support[/]", choices=support_ids)
+    selected_support = select_user(support_users)
+    if not selected_support:
+        console.print("[bold red]❌ Aucun utilisateur de support sélectionné pour créer un événement[/]")
+        return None
+
     event_date_start_str = Prompt.ask(
         "[bold cyan]Date de début de l'événement (DD-MM-YYYY)[/]",
         default=datetime.now().date()
@@ -94,52 +106,41 @@ def create_event(db):
     attendees = Prompt.ask("[bold cyan]Nombre de participants[/]", default=10)
     notes = Prompt.ask("[bold cyan]Notes[/]", default="")
 
-    return {
-        "contract_id": contract_id,
+    event_data = {
+        "contract_id": selected_contract.id,
         "event_date_start": event_date_start_str,
         "event_date_end": event_date_end_str,
         "location": location,
-        "attendees": attendees,
+        "attendees": int(attendees),
         "notes": notes,
-        "support_id": support_id
+        "support_id": selected_support.id
     }
+    return event_data
 
 
-def update_event(event, db):
+def update_event(event, db_session):
     """
     Display a form for updating an event
     :param event:
-    :param db:
+    :param db_session:
     :return: updated event data
     """
     console.print("[bold blue]🔄 Mise à jour de l'événement 🔄[/]\n")
-
-    # display the list of contracts
-    contracts = contract_controller.get_contracts(db)
-    contract_views.display_contract_list(contracts)
-
-    # ask for the contract id
-    contract_ids = [str(contract.id) for contract in contracts]
-    if not contract_ids:
+    # choose a contract
+    contracts = ContractController(db_session).get_all_contracts()
+    if not contracts:
         console.print("[bold red]❌ Aucun contrat disponible pour créer un événement[/]")
         return None
+    else:
+        selected_contract = select_contract(contracts)
 
-    contract_id = Prompt.ask("[bold cyan]ID du contrat[/]", choices=contract_ids, default=event.contract_id)
-
-    # display the list of Support Users
-    support_users = user_controller.get_support_users(db)
-    user_views.display_user_list(support_users)
-
-    # ask for the support user id
-    support_ids = [str(user.id) for user in support_users]
-    if not support_ids:
+    # choose a support user
+    support_users = UserController(db_session).get_all_support_users()
+    if not support_users:
         console.print("[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]")
         return None
-
-    support_id = Prompt.ask(
-        "[bold cyan]ID de l'utilisateur de support[/]",
-        choices=support_ids, default=event.support_id
-    )
+    else:
+        selected_support = select_user(support_users)
 
     event_date_start_str = Prompt.ask(
         "[bold cyan]Date de début de l'événement (DD-MM-YYYY)[/]",
@@ -162,13 +163,13 @@ def update_event(event, db):
     notes = Prompt.ask("[bold cyan]Notes[/]", default=event.notes)
 
     return {
-        "contract_id": contract_id,
+        "contract_id": selected_contract.id if selected_contract else event.contract_id,
         "event_date_start": event_date_start,
         "event_date_end": event_date_end,
         "location": location,
-        "attendees": attendees,
+        "attendees": int(attendees),
         "notes": notes,
-        "support_id": support_id
+        "support_id": selected_support.id if selected_support else event.support_id
     }
 
 
@@ -181,3 +182,43 @@ def delete_event(event):
     console.print(f"[bold red]⚠️ Suppression de l'événement : {event.id} appartenant au contrat {event.contract}[/]")
     return Confirm.ask("[bold red]Confirmer la suppression ?[/]", default=False)
 
+
+
+def event_menu(
+        filter_mode=False,
+        assign_support_mode=False,
+        create_event_mode=False,
+        update_event_mode=False,
+        support_only=False
+):
+    """
+    Menu to manage events
+    :param filter_mode: filter events
+    :param assign_support_mode: assign support user to event
+    :param create_event_mode: create a new event
+    :param update_event_mode: update an event
+    :param support_only: display events assigned to support user
+    """
+    event_controller = EventController()
+
+    if filter_mode:
+        events = event_controller.filter_events(support_only=support_only)
+        display_events_list(events)
+    elif assign_support_mode:
+        events = event_controller.get_unassigned_events()
+        event = select_event(events)
+        if event:
+            support_user = select_support_user()
+            if support_user:
+                event_controller.assign_support(event.id, support_user.id)
+    elif create_event_mode:
+        event_data = create_event()
+        if event_data:
+            event_controller.create_event(event_data)
+    elif update_event_mode:
+        events = event_controller.get_events(support_only=support_only)
+        event = select_event(events)
+        if event:
+            updated_data = update_event(event)
+            if updated_data:
+                event_controller.update_event(event.id, updated_data)

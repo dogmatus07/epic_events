@@ -179,3 +179,6 @@ def delete_client(db_session):
         else:
             console.print("[bold red]❌ Une erreur s'est produite lors de la suppression du client[/]")
 
+
+def client_menu():
+    return None

@@ -48,3 +48,22 @@ class EventController:
         self.db_session.delete(event)
         self.db_session.commit()
         return True
+
+    def filter_events(self, support_only=False):
+        """
+        Filter events based on the fact that they are assigned to a support user or not
+        :param support_only: boolean, show only events assigned to a loged in support user
+        :return: list of filtered events
+        """
+        if support_only:
+            current_user = self.get_current_user()
+            return self.db_session.query(Event).filter(Event.support_id == current_user.id).all()
+        return self.db_session.query(Event).all()
+    def get_unassigned_events(self):
+        pass
+
+    def assign_support(self, id, id1):
+        pass
+
+    def get_events(self, support_only):
+        pass
