@@ -1,85 +1,52 @@
+from sqlalchemy.orm import Session
 from crm.models.models import Client
-from crm.db.session import SessionLocal
+from datetime import datetime
 
 
-class ClientController:
+class ClientController():
     """
     Controller class for Client model.
     """
 
-    @staticmethod
-    def get_all_clients():
+    def __init__(self, db_session: Session):
+        self.db_session = db_session
+
+    def get_all_clients(self):
         """
         Get all clients from the database.
         """
-        db = SessionLocal()
-        clients = db.query(Client).all()
-        db.close()
-        return clients
+        return self.db_session.query(Client).all()
 
-    @staticmethod
-    def create_client(
-        email,
-        full_name,
-        phone,
-        company_name,
-        first_contact_date,
-        last_update_date,
-        commercial_id,
-    ):
+    def create_client(self, client_data):
         """
         Create a new client.
         """
-        db = SessionLocal()
-        client = Client(
-            email=email,
-            full_name=full_name,
-            phone=phone,
-            company_name=company_name,
-            first_contact_date=first_contact_date,
-            last_update_date=last_update_date,
-            commercial_id=commercial_id,
-        )
-        db.add(client)
-        db.commit()
-        db.close()
-        return client
+        new_client = Client(**client_data)
+        self.db_session.add(new_client)
+        self.db_session.commit()
+        return new_client
 
-    @staticmethod
-    def update_client(
-        client_id,
-        email,
-        full_name,
-        phone,
-        company_name,
-        first_contact_date,
-        last_update_date,
-        commercial_id,
-    ):
+    def update_client(self, client_id, updated_data):
         """
         Update a client.
         """
-        db = SessionLocal()
-        client = db.query(Client).filter(Client.id == client_id).first()
-        client.email = email
-        client.full_name = full_name
-        client.phone = phone
-        client.company_name = company_name
-        client.first_contact_date = first_contact_date
-        client.last_update_date = last_update_date
-        client.commercial_id = commercial_id
-        db.commit()
-        db.close()
+        client = self.db_session.query(Client).get(client_id)
+        if not client:
+            return None
+        for key, value in updated_data.items():
+            setattr(client, key, value)
+        client.last_update_date = datetime.now()
+        self.db_session.commit()
+
         return client
 
-    @staticmethod
-    def delete_client(client_id):
+    def delete_client(self, client_id):
         """
         Delete a client.
         """
-        db = SessionLocal()
-        client = db.query(Client).filter(Client.id == client_id).first()
-        db.delete(client)
-        db.commit()
-        db.close()
-        return client
+        client = self.db_session.query(Client).get(client_id)
+        if not client:
+            return None
+        self.db_session.delete(client)
+        self.db_session.commit()
+        return True

@@ -1,5 +1,5 @@
+from sqlalchemy.orm import Session
 from crm.models.models import Event
-from crm.db.session import SessionLocal
 
 
 class EventController:
@@ -7,80 +7,44 @@ class EventController:
     Controller class for Event model.
     """
 
-    @staticmethod
-    def get_all_events():
+    def __init__(self, db_session: Session):
+        self.db_session = db_session
+
+    def get_all_contracts(self):
         """
         Get all events from the database.
         """
-        db = SessionLocal()
-        events = db.query(Event).all()
-        db.close()
-        return events
+        return self.db_session.query(Event).all()
 
-    @staticmethod
-    def create_event(
-        contract_id,
-        event_date_start,
-        event_date_end,
-        location,
-        attendees,
-        notes,
-        support_id,
-    ):
+    def create_event(self, event_data):
         """
         Create a new event.
         """
+        new_event = Event(**event_data)
+        self.db_session.add(new_event)
+        self.db_session.commit()
+        return new_event
 
-        db = SessionLocal()
-        event = Event(
-            contract_id=contract_id,
-            event_date_start=event_date_start,
-            event_date_end=event_date_end,
-            location=location,
-            attendees=attendees,
-            notes=notes,
-            support_id=support_id,
-        )
-        db.add(event)
-        db.commit()
-        db.close()
-        return event
-
-    @staticmethod
-    def update_event(
-        event_id,
-        contract_id,
-        event_date_start,
-        event_date_end,
-        location,
-        attendees,
-        notes,
-        support_id,
-    ):
+    def update_event(self, event_id, updated_data):
         """
         Update an event.
         """
-        db = SessionLocal()
-        event = db.query(Event).filter(Event.id == event_id).first()
-        event.contract_id = contract_id
-        event.event_date_start = event_date_start
-        event.event_date_end = event_date_end
-        event.location = location
-        event.attendees = attendees
-        event.notes = notes
-        event.support_id = support_id
-        db.commit()
-        db.close()
+        event = self.db_session.query(Event).get(event_id)
+        if not event:
+            return None
+        for key, value in updated_data.items():
+            setattr(event, key, value)
+        self.db_session.commit()
+
         return event
 
-    @staticmethod
-    def delete_event(event_id):
+    def delete_event(self, event_id):
         """
         Delete an event.
         """
-        db = SessionLocal()
-        event = db.query(Event).filter(Event.id == event_id).first()
-        db.delete(event)
-        db.commit()
-        db.close()
-        return event
+        event = self.db_session.query(Event).get(event_id)
+        if not event:
+            return None
+        self.db_session.delete(event)
+        self.db_session.commit()
+        return True

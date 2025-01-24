@@ -1,5 +1,6 @@
-from crm.models.models import User
-from crm.db.session import SessionLocal
+from sqlalchemy.orm import Session
+from crm.models.models import User, Role
+from utils.password_utils import PasswordUtils
 
 
 class UserController:
@@ -7,55 +8,60 @@ class UserController:
     Controller class for User model.
     """
 
-    @staticmethod
-    def get_all_users():
+    def __init__(self, db_session: Session):
+        self.db_session = db_session
+
+    def get_all_users(self):
         """
         Get all users from the database.
         """
-        db = SessionLocal()
-        users = db.query(User).all()
-        db.close()
-        return users
+        return self.db_session.query(User).all()
 
-    @staticmethod
-    def create_user(username, email, phone_number, role_name):
+    def get_users_by_role(self, role_name: str):
+        """
+        Get all users with a specific role.
+        """
+        return self.db_session.query(User).join(Role).filter(Role.role_name == role_name)
+
+    def create_user(self, user_data: dict):
         """
         Create a new user.
         """
-        user = User(
-            username=username,
-            email=email,
-            phone_number=phone_number,
-            role_name=role_name,
-        )
-        db.add(user)
-        db.commit()
-        db.close()
-        return user
+        # check if user already exist
+        existing_user = self.db_session.query(User).filter_by(email=user_data.get('email'))
+        if existing_user:
+            return None
 
-    @staticmethod
-    def update_user(user_id, username, email, phone_number, role_name):
+        hashed_password = PasswordUtils.hash_password(user_data.pop('password'))
+        new_user = User(**user_data, password=hashed_password)
+        self.db_session.add(new_user)
+        self.db_session.commit()
+        return new_user
+
+    def update_user(self, user_id, updated_data: dict):
         """
         Update a user.
         """
-        db = SessionLocal()
-        user = db.query(User).filter(User.id == user_id).first()
-        user.username = username
-        user.email = email
-        user.phone_number = phone_number
-        user.role_name = role_name
-        db.commit()
-        db.close()
+        user = self.db_session.query(User).get(user_id)
+        if not user:
+            return None
+
+        if "password" in updated_data:
+            updated_data["hashed_password"] = PasswordUtils.hash_password(updated_data.pop("password"))
+
+        for key, value in updated_data.items():
+            setattr(user, key, value)
+
+        self.db_session.commit()
         return user
 
-    @staticmethod
-    def delete_user(user_id):
+    def delete_user(self, user_id):
         """
         Delete a user.
         """
-        db = SessionLocal()
-        user = db.query(User).filter(User.id == user_id).first()
-        db.delete(user)
-        db.commit()
-        db.close()
-        return user
+        user = self.db_session.query(User).get(user_id)
+        if not user:
+            return False
+        self.db_session.delete(user)
+        self.db_session.commit()
+        return True

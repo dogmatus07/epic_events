@@ -1,5 +1,5 @@
+from sqlalchemy.orm import Session
 from crm.models.models import Role
-from crm.db.session import SessionLocal
 
 
 class RoleController:
@@ -7,48 +7,35 @@ class RoleController:
     Controller class for Role model.
     """
 
-    @staticmethod
-    def get_all_roles():
+    def __init__(self, db_session: Session):
+        self.db_session = db_session
+
+    def get_all_roles(self):
         """
         Get all roles from the database.
         """
-        db = SessionLocal()
-        roles = db.query(Role).all()
-        db.close()
-        return roles
+        return self.db_session.query(Role).all()
 
-    @staticmethod
-    def create_role(role_name):
+    def create_role(self, role_name: str):
         """
         Create a new role.
         """
-        db = SessionLocal()
-        role = Role(role_name=role_name)
-        db.add(role)
-        db.commit()
-        db.close()
-        return role
+        existing_role = self.db_session.query(Role).filter_by(role_name = role_name).first()
+        if existing_role:
+            return None
+        new_role = Role(role_name = role_name)
+        self.db_session.add(new_role)
+        self.db_session.commit()
+        return new_role
 
-    @staticmethod
-    def delete_role(role_id):
+    def delete_role(self, role_id: int):
         """
         Delete a role.
         """
-        db = SessionLocal()
-        role = db.query(Role).filter(Role.id == role_id).first()
-        db.delete(role)
-        db.commit()
-        db.close()
-        return role
+        role = self.db_session.query(Role).get(role_id)
+        if not role:
+            return None
+        self.db_session.delete(role)
+        self.db_session.commit()
+        return True
 
-    @staticmethod
-    def update_role(role_id, role_name):
-        """
-        Update a role.
-        """
-        db = SessionLocal()
-        role = db.query(Role).filter(Role.id == role_id).first()
-        role.role_name = role_name
-        db.commit()
-        db.close()
-        return role
