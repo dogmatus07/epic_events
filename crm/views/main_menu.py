@@ -73,7 +73,6 @@ def support_menu():
     """
     Display the specific menu for role : Support
     """
-    logo = Text()
     while True:
         table = Table(title="[bold blue]✨ Menu Support ✨[/]", box=box.ROUNDED)
         table.add_column("[bold green]Index[/]", style="dim", width=12)
