@@ -18,10 +18,10 @@ def gestion_menu():
     """
     while True:
         table = Table(title="[bold blue]✨Menu Gestion✨[/]", box=box.ROUNDED)
-        table.add_column("[bold green]1. Gestion des collaborateurs[/]", style="dim", width=12)
-        table.add_column("[bold green]2. Gestion des contrats[/]")
-        table.add_column("[bold green]3. Filtrer les événements[/]")
-        table.add_column("[bold green]4. Associer un collaborateur à un événement[/]")
+        table.add_column("[bold green]1. Collaborateurs[/]", style="dim", width=12)
+        table.add_column("[bold green]2. Contrats[/]")
+        table.add_column("[bold green]3. Evénements[/]")
+        table.add_column("[bold green]4. Assigner[/]")
         table.add_column("[bold green]0. Retour[/]")
 
         console.print(Panel(table, title="🔧 Menu Gestion", expand=False))
@@ -45,14 +45,14 @@ def commercial_menu():
     """
     while True:
         table = Table(title="[bold blue]✨Menu Commercial✨[/]", box=box.ROUNDED)
-        table.add_column("[bold green]1. Créer des clients[/]", style="dim", width=12)
-        table.add_column("[bold green]2. Mettre à jour vos clients[/]")
-        table.add_column("[bold green]3. Modifier les contrats de vos clients[/]")
-        table.add_column("[bold green]4. Créer un événement pour vos clients[/]")
-        table.add_column("[bold green]5. Filtrer les contrats[/]")
+        table.add_column("[bold green]1. Créer Clients[/]", style="dim", width=12)
+        table.add_column("[bold green]2. Mettre à jour Clients[/]")
+        table.add_column("[bold green]3. Modifier Contrats[/]")
+        table.add_column("[bold green]4. Créer Événement[/]")
+        table.add_column("[bold green]5. Filtrer Contrats[/]")
         table.add_column("[bold green]6. Retour[/]")
 
-        console.print(Panel(table, title="🔧 Menu Commercial", expand=False))
+        console.print(Panel(table, title="🔧 Bienvenue", expand=False))
         choice = Prompt.ask("[bold cyan]Choisissez une option[/]", choices=["1", "2", "3", "4", "5", "0"])
 
         if choice == "1":
@@ -73,13 +73,18 @@ def support_menu():
     """
     Display the specific menu for role : Support
     """
+    logo = Text()
     while True:
-        table = Table(title="[bold blue]✨Menu Support✨[/]", box=box.ROUNDED)
-        table.add_column("[bold green]1. Filtrer vos événements[/]", style="dim", width=12)
-        table.add_column("[bold green]2. Mettre àjour vos événements[/]")
-        table.add_column("[bold green]0. Retour[/]")
+        table = Table(title="[bold blue]✨ Menu Support ✨[/]", box=box.ROUNDED)
+        table.add_column("[bold green]Index[/]", style="dim", width=12)
+        table.add_column("[bold green]Description[/]")
 
-        console.print(Panel(table, title="🔧 Menu Support", expand=False))
+        # adding rows
+        table.add_row("1", "Afficher les événements")
+        table.add_row("2", "Mettre à jour les événements")
+        table.add_row("0", "Retour")
+
+        console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
         choice = Prompt.ask("[bold cyan]Choisissez une option[/]", choices=["1", "2", "0"])
 
         if choice == "1":

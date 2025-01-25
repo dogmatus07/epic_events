@@ -5,11 +5,12 @@ from rich.prompt import Prompt, Confirm
 from rich import box
 from datetime import datetime
 
+from crm.controllers import user_controller
 from crm.controllers.event_controller import EventController
 from crm.controllers.contract_controller import ContractController
 from crm.controllers.user_controller import UserController
-from contract_views import select_contract
-from user_views import select_user
+from crm.views.contract_views import select_contract
+from crm.views.user_views import select_user, select_support_user
 
 console = Console()
 
@@ -66,7 +67,7 @@ def select_event(events):
 def create_event(db_session):
     """
     Display a form for creating a new event
-    :param db:
+    :param db_session: database session
     :return: event data
     """
     console.print("[bold blue]➕ Création d'un nouvel événement ➕[/]\n")
@@ -82,7 +83,7 @@ def create_event(db_session):
         console.print("[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]")
         return None
 
-    selected_support = select_user(support_users)
+    selected_support = select_support_user(support_users)
     if not selected_support:
         console.print("[bold red]❌ Aucun utilisateur de support sélectionné pour créer un événement[/]")
         return None
@@ -140,7 +141,7 @@ def update_event(event, db_session):
         console.print("[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]")
         return None
     else:
-        selected_support = select_user(support_users)
+        selected_support = select_support_user(support_users)
 
     event_date_start_str = Prompt.ask(
         "[bold cyan]Date de début de l'événement (DD-MM-YYYY)[/]",
@@ -183,16 +184,17 @@ def delete_event(event):
     return Confirm.ask("[bold red]Confirmer la suppression ?[/]", default=False)
 
 
-
 def event_menu(
+        db_session,
         filter_mode=False,
         assign_support_mode=False,
         create_event_mode=False,
         update_event_mode=False,
-        support_only=False
+        support_only=False,
 ):
     """
     Menu to manage events
+    :param db_session: database session
     :param filter_mode: filter events
     :param assign_support_mode: assign support user to event
     :param create_event_mode: create a new event
@@ -208,9 +210,10 @@ def event_menu(
         events = event_controller.get_unassigned_events()
         event = select_event(events)
         if event:
-            support_user = select_support_user()
-            if support_user:
-                event_controller.assign_support(event.id, support_user.id)
+            support_users = UserController(db_session).get_all_support_users()
+            selected_support = select_support_user(support_users)
+            if selected_support:
+                event_controller.assign_support(event.id, selected_support.id)
     elif create_event_mode:
         event_data = create_event()
         if event_data:

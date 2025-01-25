@@ -177,3 +177,22 @@ def delete_user(user):
 
 def user_menu():
     return None
+
+def select_support_user(support_users):
+    """
+    Display a list of support users and ask the user to select one
+    :param support_users: list of support users
+    """
+    if not support_users:
+        console.print("[bold red]❌ Aucun utilisateur de support disponible[/]")
+        return None
+
+    console.print("[bold blue]‍💼 Liste des utilisateurs de support[/]")
+    for index, user in enumerate(support_users, start=1):
+        console.print(f"[bold green]{index}. {user.full_name} - {user.email}[/]")
+
+    user_index = Prompt.ask(
+        "[bold cyan]Sélectionnez un utilisateur de support par son index[/]",
+        choices=[str(i) for i in range(1, len(support_users) + 1)]
+    )
+    return support_users[int(user_index) - 1]

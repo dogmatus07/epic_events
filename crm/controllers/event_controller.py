@@ -57,13 +57,38 @@ class EventController:
         """
         if support_only:
             current_user = self.get_current_user()
-            return self.db_session.query(Event).filter(Event.support_id == current_user.id).all()
+            return self.db_session.query(Event).filter(Event.support_id.is_(current_user.id)).all()
         return self.db_session.query(Event).all()
+
     def get_unassigned_events(self):
+        """
+        Get all events that are not assigned to a support user
+        """
+        return self.db_session.query(Event).filter(Event.support_id.is_(None)).all()
+
+    def assign_support(self, event_id, support_id):
+        """
+        Assign a support user to an event
+        :param event_id: int, event id
+        :param support_id: int, support user id
+        """
+        event = self.db_session.query(Event).get(event_id)
+        if event:
+            event.support_id = support_id
+            self.db_session.commit()
+
+    def get_events(self, support_only=False):
+        """
+        Get all events or only events assigned to a support user
+        """
+        if support_only:
+            current_user = self.get_current_user()
+            return self.db_session.query(Event).filter(Event.support_id.is_(current_user.id)).all()
+        return self.db_session.query(Event).all()
+
+    def get_current_user(self):
+        """
+        Get the current user
+        """
         pass
 
-    def assign_support(self, id, id1):
-        pass
-
-    def get_events(self, support_only):
-        pass
