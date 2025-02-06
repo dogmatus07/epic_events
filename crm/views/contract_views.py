@@ -1,3 +1,4 @@
+import os
 import uuid
 from rich.console import Console
 from rich.table import Table
@@ -9,6 +10,13 @@ from crm.controllers.client_controller import ClientController
 from crm.views.client_views import select_client
 
 console = Console()
+
+
+def clear_screen():
+    """
+    Clear the screen
+    """
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def display_contract_list(contracts):
@@ -65,7 +73,7 @@ def create_contract(db_session):
     """
     console.print("[bold blue]➕ Création d'un nouveau contrat ➕[/]\n")
     # display the list of clients
-    client_controller = ClientController()
+    client_controller = ClientController(db_session)
     clients = client_controller.get_all_clients()
 
     if not clients:
@@ -88,7 +96,7 @@ def create_contract(db_session):
         'signed': signed
     }
 
-    contract_controller = ContractController()
+    contract_controller = ContractController(db_session)
     created_contract = contract_controller.create_contract(contract_data)
 
     if created_contract:
@@ -164,5 +172,40 @@ def delete_contract(db_session):
             console.print("[bold red]❌ Une erreur s'est produite lors de la suppression du contrat[/]")
 
 
-def contract_menu():
-    return None
+def contract_menu(db_session, update_mode=False, filter_mode=False):
+    """
+    Display the contract menu
+    :param db_session: database session
+    :param update_mode: boolean
+    :param filter_mode: boolean
+    """
+    contract_controller = ContractController(db_session)
+
+    if update_mode:
+        update_contract(db_session)
+        return
+    elif filter_mode:
+        contracts = contract_controller.get_all_contracts()
+        display_contract_list(contracts)
+        return
+    clear_screen()
+
+    while True:
+        console.print("[bold blue]📝 Menu Contrat 📝[/]")
+        choice = Prompt.ask(
+            "[bold cyan]1. Afficher contrats | 2. Ajouter contrat | 3. Modifier contrat | 4. Supprimer contrat | 0. "
+            "Retour[/]",
+            choices=["1", "2", "3", "4", "0"]
+        )
+
+        if choice == "1":
+            contracts = contract_controller.get_all_contracts()
+            display_contract_list(contracts)
+        elif choice == "2":
+            create_contract(db_session)
+        elif choice == "3":
+            update_contract(db_session)
+        elif choice == "4":
+            delete_contract(db_session)
+        elif choice == "0":
+            break

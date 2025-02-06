@@ -1,3 +1,4 @@
+import os
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt, Confirm
@@ -8,6 +9,12 @@ from crm.controllers.client_controller import ClientController
 
 console = Console()
 
+def clear_screen():
+    """
+    Clear the screen
+    """
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 
 def display_client_list(clients):
     """
@@ -15,8 +22,9 @@ def display_client_list(clients):
     :param clients:
     :return: list of clients
     """
+    clear_screen()
     table = Table(title="[bold blue]✨Liste des clients✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]ID[/]", style="dim", width=12)
+    table.add_column("[bold green]ID[/]", style="dim", width=6)
     table.add_column("[bold green]Nom complet[/]")
     table.add_column("[bold green]E-mail[/]")
     table.add_column("[bold green]Téléphone[/]")
@@ -24,18 +32,20 @@ def display_client_list(clients):
     table.add_column("[bold green]Premier contact[/]")
     table.add_column("[bold green]Dernière mise à jour[/]")
     table.add_column("[bold green]Commercial[/]")
-    for client in clients:
+    for index, client in enumerate(clients, start=1):
         commercial_name = client.commercial.full_name if client.commercial else "Non attribué"
         table.add_row(
-            str(client.id),
+            str(index),
+            #str(client.id),
             client.full_name,
             client.email,
             client.phone,
             client.company_name,
-            client.first_contact_date,
-            client.last_update_date,
+            client.first_contact_date.strftime("%d-%m-%Y"),
+            client.last_update_date.strftime("%d-%m-%Y"),
             commercial_name
         )
+
     console.print(Panel(table, title="🚀 Clients", expand=False))
 
 
@@ -44,14 +54,19 @@ def create_client(db_session):
     Display a form for creating a new client
     :return: dictionary with client data
     """
+    clear_screen()
     console.print("[bold blue]➕ Création d'un nouveau client ➕[/]\n")
 
     full_name = Prompt.ask("[bold cyan]Nom complet du client[/]", default="John Doe")
     email = Prompt.ask("[bold cyan]E-mail du client[/]", default="adresse@email.com")
     phone = Prompt.ask("[bold cyan]Téléphone du client[/]", default="0102030405")
     company_name = Prompt.ask("[bold cyan]Nom de la société du client[/]", default="Ma Société")
-    first_contact_date_str = Prompt.ask("[bold cyan]Date du premier contact (DD-MM-YYYY)[/]", default=datetime.now().date())
-    last_update_date_str = Prompt.ask("[bold cyan]Date  mise à jour (DD-MM-YYYY)[/]", default=datetime.now().date())
+    first_contact_date_str = Prompt.ask(
+        "[bold cyan]Date du premier contact (DD-MM-YYYY)[/]",
+        default=datetime.now().strftime("%d-%m-%Y"))
+    last_update_date_str = Prompt.ask(
+        "[bold cyan]Date  mise à jour (DD-MM-YYYY)[/]",
+        default=datetime.now().strftime("%d-%m-%Y"))
 
     try:
         first_contact_date = datetime.strptime(first_contact_date_str, "%d-%m-%Y").date()
@@ -83,7 +98,13 @@ def select_client(clients):
     """
     Allow a user to select client from a list
     """
+    clear_screen()
     display_client_list(clients)
+
+    if not clients:
+        console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
+        return
+
     index = Prompt.ask("[bold cyan]Sélectionnez un client[/]")
     try:
         index = int(index) - 1
@@ -97,7 +118,7 @@ def select_client(clients):
         return None
 
 
-def update_client(db_session, client_id):
+def update_client(db_session):
     """
     display a form for updating a client
     :param client:
@@ -107,13 +128,14 @@ def update_client(db_session, client_id):
     client_controller = ClientController(db_session)
     clients = client_controller.get_all_clients()
     if not clients:
-        console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
+        console.print("[bold red]❌ Aucun client disponible[/]")
         return
 
     client = select_client(clients)
     if not client:
         return
 
+    clear_screen()
     console.print("[bold blue]🔄 Modification du client : {client.full_name}🔄[/]\n")
 
     full_name = Prompt.ask("[bold cyan]Nom complet du client[/]", default=client.full_name)
@@ -124,14 +146,10 @@ def update_client(db_session, client_id):
         "[bold cyan]Date du premier contact (DD-MM-YYYY)[/]",
         default=client.first_contact_date.strftime("%d-%m-%Y")
     )
-    last_update_date_str = Prompt.ask(
-        "[bold cyan]Date  mise à jour (DD-MM-YYYY)[/]",
-        default=client.last_update_date.strftime("%d-%m-%Y")
-    )
+    last_update_date = datetime.now().date()
 
     try:
         first_contact_date = datetime.strptime(first_contact_date_str, "%d-%m-%Y").date()
-        last_update_date = datetime.strptime(last_update_date_str, "%d-%m-%Y").date()
     except ValueError:
         console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
         return None
@@ -157,7 +175,7 @@ def update_client(db_session, client_id):
 def delete_client(db_session):
     """
     Ask confirmation before deleting a client
-    :param client:
+    :param db_session: database session
     :return: confirmation
     """
     client_controller = ClientController(db_session)
@@ -180,5 +198,34 @@ def delete_client(db_session):
             console.print("[bold red]❌ Une erreur s'est produite lors de la suppression du client[/]")
 
 
-def client_menu():
-    return None
+def client_menu(db_session, create_mode=False, update_mode=False):
+    """
+    Display the client menu
+    """
+    client_controller = ClientController(db_session)
+
+    if create_mode:
+        create_client(db_session)
+        return
+    elif update_mode:
+        update_client(db_session)
+        return
+
+    while True:
+        clear_screen()
+        console.print("[bold blue]👥 Menu Client 👥[/]")
+        choice = Prompt.ask("[bold cyan]1. Afficher clients | 2. Ajouter client | 3. Modifier client | 4. Supprimer "
+                            "client | 0. Retour[/]",
+                            choices=["1", "2", "3", "4", "0"])
+
+        if choice == "1":
+            clients = client_controller.get_all_clients()
+            display_client_list(clients)
+        elif choice == "2":
+            create_client(client_controller.db_session)
+        elif choice == "3":
+            update_client(client_controller.db_session)
+        elif choice == "4":
+            delete_client(client_controller.db_session)
+        elif choice == "0":
+            break

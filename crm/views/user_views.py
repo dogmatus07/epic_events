@@ -1,3 +1,4 @@
+import os
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -9,6 +10,13 @@ from crm.controllers.user_controller import UserController
 
 
 console = Console()
+
+
+def clear_screen():
+    """
+    Clear the screen
+    """
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def display_user_list(users):
@@ -30,12 +38,11 @@ def display_user_list(users):
         active_status = "✅ Oui" if user.is_active else "❌ Non"
         table.add_row(
             str(user.id),
-            user.full_name,
+            user.username,
             user.email,
             user.phone_number,
             user.role.role_name,
             active_status,
-            user.date_created.strftime("%d-%m-%Y")
         )
     console.print(Panel(table, title="👩‍💼 Utilisateurs", expand=False))
 
@@ -175,8 +182,48 @@ def delete_user(user):
     return Confirm.ask("[bold red]⚠️ Voulez-vous vraiment supprimer cet utilisateur ?[/]", default=False)
 
 
-def user_menu():
-    return None
+def user_menu(db_session):
+    """
+    Display the user menu
+    :param db_session: database session
+    """
+
+    user_controller = UserController(db_session)
+    clear_screen()
+    while True:
+        console.print("[bold blue]👩‍💼 Menu Utilisateur 👩‍💼[/]")
+        choice = Prompt.ask(
+            "[bold cyan]1. Afficher utilisateurs | 2. Ajouter utilisateur | 3. Modifier utilisateur | 4. Supprimer "
+            "utilisateur | 0. Retour[/]",
+            choices = ["1", "2", "3", "4", "0"]
+        )
+
+        if choice == "1":
+            users = user_controller.get_all_users()
+            display_user_list(users)
+        elif choice == "2":
+            user_data = create_user(db_session)
+            if user_data:
+                user_controller.create_user(user_data)
+        elif choice == "3":
+            users = user_controller.get_all_users()
+            if users:
+                user = select_user(users)
+                if user:
+                    updated_user_data = update_user(user, db_session)
+                    if updated_user_data:
+                        user_controller.update_user(user.id, updated_user_data)
+        elif choice == "4":
+            users = user_controller.get_all_users()
+            if users:
+                user = select_user(users)
+                if user:
+                    confirm = delete_user(user)
+                    if confirm:
+                        user_controller.delete_user(user.id)
+        elif choice == "0":
+            break
+
 
 def select_support_user(support_users):
     """

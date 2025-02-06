@@ -1,3 +1,4 @@
+import os
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -5,7 +6,6 @@ from rich.prompt import Prompt, Confirm
 from rich import box
 from datetime import datetime
 
-from crm.controllers import user_controller
 from crm.controllers.event_controller import EventController
 from crm.controllers.contract_controller import ContractController
 from crm.controllers.user_controller import UserController
@@ -13,6 +13,13 @@ from crm.views.contract_views import select_contract
 from crm.views.user_views import select_user, select_support_user
 
 console = Console()
+
+
+def clear_screen():
+    """
+    Clear the screen
+    """
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def display_events_list(events):
@@ -190,7 +197,8 @@ def event_menu(
         assign_support_mode=False,
         create_event_mode=False,
         update_event_mode=False,
-        support_only=False,
+        display_mode=False,
+        support_only=False
 ):
     """
     Menu to manage events
@@ -200,8 +208,9 @@ def event_menu(
     :param create_event_mode: create a new event
     :param update_event_mode: update an event
     :param support_only: display events assigned to support user
+    :param display_mode: display all events
     """
-    event_controller = EventController()
+    event_controller = EventController(db_session)
 
     if filter_mode:
         events = event_controller.filter_events(support_only=support_only)
@@ -214,6 +223,9 @@ def event_menu(
             selected_support = select_support_user(support_users)
             if selected_support:
                 event_controller.assign_support(event.id, selected_support.id)
+    elif display_mode:
+        events = event_controller.get_events(db_session)
+        display_events_list(events)
     elif create_event_mode:
         event_data = create_event()
         if event_data:

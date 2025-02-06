@@ -2,7 +2,9 @@ from crm.views.views import authenticate_user
 from crm.views.main_menu import main_menu
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
+from crm.db.session import get_db_session
 
+db_session = get_db_session()
 
 if __name__ == "__main__":
     token = None
@@ -25,4 +27,4 @@ if __name__ == "__main__":
         print(f"Connexion réussie, Rôle: {role}")
 
     # display menu according to the role
-    main_menu(role)
+    main_menu(role, db_session)

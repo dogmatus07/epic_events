@@ -10,12 +10,6 @@ class EventController:
     def __init__(self, db_session: Session):
         self.db_session = db_session
 
-    def get_all_contracts(self):
-        """
-        Get all events from the database.
-        """
-        return self.db_session.query(Event).all()
-
     def create_event(self, event_data):
         """
         Create a new event.
