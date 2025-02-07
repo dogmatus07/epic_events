@@ -26,17 +26,18 @@ def display_user_list(users):
     :return: list of users
     """
     table = Table(title="[bold blue]✨Liste des utilisateurs✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]ID[/]", style="dim", width=12)
+    table.add_column("[bold green]Index[/]", style="dim", width=6)
+    table.add_column("[bold green]ID[/]", style="dim", width=6)
     table.add_column("[bold green]Nom complet[/]")
     table.add_column("[bold green]E-mail[/]")
     table.add_column("[bold green]Téléphone[/]")
     table.add_column("[bold green]Rôle[/]")
     table.add_column("[bold green]Actif[/]")
-    table.add_column("[bold green]Date de création[/]")
 
-    for user in users:
+    for idx, user in enumerate(users, start=1):
         active_status = "✅ Oui" if user.is_active else "❌ Non"
         table.add_row(
+            str(idx),
             str(user.id),
             user.username,
             user.email,
@@ -44,6 +45,7 @@ def display_user_list(users):
             user.role.role_name,
             active_status,
         )
+
     console.print(Panel(table, title="👩‍💼 Utilisateurs", expand=False))
 
 
@@ -56,14 +58,11 @@ def select_user(users, default_id=None):
         return None
 
     display_user_list(users)
-    user_ids = [str(user.id) for user in users]
-    selected_id = Prompt.ask(
-        "[bold cyan]Sélectionnez un utilisateur par son ID[/]",
-        default=default_id if default_id in user_ids else None,
-        choices=user_ids
+    selected_index = Prompt.ask(
+        "[bold cyan]Sélectionnez un utilisateur par son index[/]",
+        choices=[str(i) for i in range(1, len(users) + 1)]
     )
-    return next((user for user in users if str(user.id) == selected_id), None)
-
+    return users[int(selected_index) - 1]
 
 def create_user(db_session):
     """
@@ -123,7 +122,7 @@ def update_user(user, db_session):
     :param db_session:
     :return: updated user data
     """
-    console.print(f"[bold blue]🔄 Modification de l'utilisateur : {user.full_name}🔄[/]\n")
+    console.print(f"[bold blue]🔄 Modification de l'utilisateur : {user.username}🔄[/]\n")
 
     username = Prompt.ask(
         "[bold cyan]Nom d'utilisateur[/]",
@@ -158,7 +157,7 @@ def update_user(user, db_session):
 
     password = Prompt.ask(
         "[bold cyan]Mot de passe[/] (laissez vide pour ne pas le changer)",
-        password=True, default=""
+        password=True
     )
 
     user_data = {
@@ -167,8 +166,14 @@ def update_user(user, db_session):
         "phone_number": phone_number,
         "is_active": is_active,
         "role_name": role_name,
-        "password": password
     }
+
+    if password.strip():
+        user_data["password"] = password
+    else:
+        console.print("[bold yellow]⚠️ Mot de passe inchangé[/]")
+
+    console.print("[bold green]✔️ Données utilisateur mises à jour avec succès[/]")
     return user_data
 
 
@@ -236,7 +241,7 @@ def select_support_user(support_users):
 
     console.print("[bold blue]‍💼 Liste des utilisateurs de support[/]")
     for index, user in enumerate(support_users, start=1):
-        console.print(f"[bold green]{index}. {user.full_name} - {user.email}[/]")
+        console.print(f"[bold green]{index}. {user.username} - {user.email}[/]")
 
     user_index = Prompt.ask(
         "[bold cyan]Sélectionnez un utilisateur de support par son index[/]",

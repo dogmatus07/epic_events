@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from crm.models.models import Event
+from crm.models.models import Event, User
 
 
 class EventController:
@@ -7,8 +7,9 @@ class EventController:
     Controller class for Event model.
     """
 
-    def __init__(self, db_session: Session):
+    def __init__(self, db_session: Session, current_user_id=None):
         self.db_session = db_session
+        self.current_user_id = current_user_id
 
     def create_event(self, event_data):
         """
@@ -51,6 +52,8 @@ class EventController:
         """
         if support_only:
             current_user = self.get_current_user()
+            if not current_user:
+                return []
             return self.db_session.query(Event).filter(Event.support_id.is_(current_user.id)).all()
         return self.db_session.query(Event).all()
 
@@ -77,6 +80,9 @@ class EventController:
         """
         if support_only:
             current_user = self.get_current_user()
+            if not current_user:
+                return []
+
             return self.db_session.query(Event).filter(Event.support_id.is_(current_user.id)).all()
         return self.db_session.query(Event).all()
 
@@ -84,5 +90,7 @@ class EventController:
         """
         Get the current user
         """
-        pass
+        if not self.current_user_id:
+            return None
+        return self.db_session.query(User).filter(str(User.id) == self.current_user_id).first()
 

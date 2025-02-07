@@ -20,6 +20,7 @@ if __name__ == "__main__":
         exit()
 
     role = payload.get("role")
+    user_id = payload.get("user_id")
     if not role:
         print("Rôle non trouvé dans le token")
         exit()
@@ -27,4 +28,4 @@ if __name__ == "__main__":
         print(f"Connexion réussie, Rôle: {role}")
 
     # display menu according to the role
-    main_menu(role, db_session)
+    main_menu(role, db_session, user_id)

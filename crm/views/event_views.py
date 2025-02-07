@@ -12,6 +12,7 @@ from crm.controllers.user_controller import UserController
 from crm.views.contract_views import select_contract
 from crm.views.user_views import select_user, select_support_user
 
+
 console = Console()
 
 
@@ -85,7 +86,7 @@ def create_event(db_session):
         console.print("[bold red]❌ Aucun contrat sélectionné pour créer un événement[/]")
         return None
 
-    support_users = UserController(db_session).get_all_support_users()
+    support_users = UserController(db_session).get_all_support_users().all()
     if not support_users:
         console.print("[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]")
         return None
@@ -193,6 +194,7 @@ def delete_event(event):
 
 def event_menu(
         db_session,
+        user_id,
         filter_mode=False,
         assign_support_mode=False,
         create_event_mode=False,
@@ -210,7 +212,7 @@ def event_menu(
     :param support_only: display events assigned to support user
     :param display_mode: display all events
     """
-    event_controller = EventController(db_session)
+    event_controller = EventController(db_session, current_user_id=user_id)
 
     if filter_mode:
         events = event_controller.filter_events(support_only=support_only)
@@ -219,7 +221,7 @@ def event_menu(
         events = event_controller.get_unassigned_events()
         event = select_event(events)
         if event:
-            support_users = UserController(db_session).get_all_support_users()
+            support_users = UserController(db_session).get_all_support_users().all()
             selected_support = select_support_user(support_users)
             if selected_support:
                 event_controller.assign_support(event.id, selected_support.id)
@@ -227,7 +229,7 @@ def event_menu(
         events = event_controller.get_events(db_session)
         display_events_list(events)
     elif create_event_mode:
-        event_data = create_event()
+        event_data = create_event(db_session)
         if event_data:
             event_controller.create_event(event_data)
     elif update_event_mode:

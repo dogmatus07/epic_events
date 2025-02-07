@@ -26,24 +26,25 @@ def display_contract_list(contracts):
     :return: list of contracts
     """
     table = Table(title="[bold blue]✨Liste des contrats✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]ID[/]", style="dim", width=12)
+    table.add_column("[bold green]Index[/]", style="dim", width=6)
+    table.add_column("[bold green]ID Contrat[/]")
     table.add_column("[bold green]Client[/]")
     table.add_column("[bold green]Montant total[/]")
     table.add_column("[bold green]Montant dû[/]")
     table.add_column("[bold green]Signé[/]")
     table.add_column("[bold green]Commercial[/]")
-    for contract in contracts:
+    for idx, contract in enumerate(contracts, start=1):
         client_name = contract.client.full_name if contract.client else "Non attribué"
-        commercial_name = contract.commercial.full_name if contract.commercial else "Non attribué"
-        signed_status = "✅ Yes" if contract.signed else "❌ No"
         table.add_row(
+            str(idx),
             str(contract.id),
             client_name,
             str(contract.total_amount),
             str(contract.amount_due),
-            signed_status,
-            commercial_name
+            "✅" if contract.signed else "❌",
+            contract.commercial.full_name if contract.commercial else "Non attribué"
         )
+
     console.print(Panel(table, title="📋 Contrats", expand=False))
 
 
@@ -51,19 +52,21 @@ def select_contract(contracts):
     """
     Display a list of contracts and ask the user to select one
     """
+    if not contracts:
+        console.print("[bold red]❌ Aucun contrat disponible[/]")
+        return None
+
     display_contract_list(contracts)
-    index = Prompt.ask(
-        "[bold cyan]Sélectionnez un contrat par son Index[/]",
-        choices=[str(contract.id) for contract in contracts])
     try:
-        index = int(index) - 1
-        if 0 <= index < len(contracts):
-            return contracts[index]
+        index = Prompt.ask("[bold cyan]Sélectionnez un contrat[/]", default=1)
+        if 1<= int(index) <= len(contracts):
+            return contracts[int(index) - 1]
         else:
-            console.print("[bold red]❌ L'index n'est pas valide[/]")
+            console.print("[bold red]❌ Index invalide[/]")
             return None
     except ValueError:
         console.print("[bold red]❌ Entrée invalide[/]")
+        return None
 
 
 def create_contract(db_session):
@@ -136,7 +139,7 @@ def update_contract(db_session):
         "signed": signed
     }
 
-    updated_contract = contact_controller.update_contract(contract, updated_data)
+    updated_contract = contact_controller.update_contract(contract.id, updated_data)
     if updated_contract:
         console.print("[bold green]✅ Contrat mis à jour avec succès[/]")
         return updated_contract

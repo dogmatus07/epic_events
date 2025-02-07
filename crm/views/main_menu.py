@@ -43,7 +43,7 @@ def display_menu(title, options):
     return Prompt.ask("[bold cyan]Choisissez une option[/]", choices=options.keys())
 
 
-def gestion_menu(db_session):
+def gestion_menu(db_session, user_id):
     """
     Display the specific menu for role : Gestion
     """
@@ -61,14 +61,14 @@ def gestion_menu(db_session):
         elif choice == "2":
             contract_menu(db_session)
         elif choice == "3":
-            event_menu(db_session, display_mode=True)
+            event_menu(db_session, user_id, display_mode=True)
         elif choice == "4":
-            event_menu(db_session, assign_support_mode=True)
+            event_menu(db_session, user_id, assign_support_mode=True)
         elif choice == "0":
             break
 
 
-def commercial_menu(db_session):
+def commercial_menu(db_session, user_id):
     """
     Display the specific menu for role : Commercial
     """
@@ -89,14 +89,14 @@ def commercial_menu(db_session):
         elif choice == "3":
             contract_menu(db_session, update_mode=True)
         elif choice == "4":
-            event_menu(db_session, create_event_mode=True)
+            event_menu(db_session, user_id, create_event_mode=True)
         elif choice == "5":
             contract_menu(db_session, filter_mode=True)
         elif choice == "0":
             break
 
 
-def support_menu(db_session):
+def support_menu(db_session, user_id):
     """
     Display the specific menu for role : Support
     """
@@ -108,23 +108,23 @@ def support_menu(db_session):
         })
 
         if choice == "1":
-            event_menu(db_session, filter_mode=True, support_only=True)
+            event_menu(db_session, user_id, filter_mode=True, support_only=True)
         elif choice == "2":
-            event_menu(db_session, update_event_mode=True, support_only=True)
+            event_menu(db_session, user_id, update_event_mode=True, support_only=True)
         elif choice == "0":
             break
 
 
-def main_menu(role, db_session):
+def main_menu(role, db_session, user_id):
     """
     Display the main menu based on the user's role
     :param role: user's role
     :param db_session: database session
     """
     role_menus = {
-        "Gestion": lambda: gestion_menu(db_session),
-        "Commercial": lambda: commercial_menu(db_session),
-        "Support": lambda: support_menu(db_session)
+        "Gestion": lambda: gestion_menu(db_session, user_id),
+        "Commercial": lambda: commercial_menu(db_session, user_id),
+        "Support": lambda: support_menu(db_session, user_id)
     }
 
     menu_function = role_menus.get(role)

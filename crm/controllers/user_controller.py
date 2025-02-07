@@ -70,7 +70,7 @@ class UserController:
         """
         Get all support users from the database.
         """
-        return self.db_session.query(User).filter(User.role_name == "Support")
+        return self.db_session.query(User).filter(User.role_name == "Support").all()
 
     def get_all_commercial_users(self):
         """
