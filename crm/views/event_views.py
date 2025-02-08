@@ -29,6 +29,9 @@ def display_events_list(events):
     :param events:
     :return: list of events
     """
+    if not events:
+        console.print("[bold red]❌ Aucun événement disponible[/]")
+        return
     table = Table(title="[bold blue]✨Liste des événements✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]ID[/]", style="dim", width=12)
     table.add_column("[bold green]Contrat[/]")
@@ -90,7 +93,7 @@ def create_event(db_session):
         )
         return None
 
-    support_users = UserController(db_session).get_all_support_users().all()
+    support_users = UserController(db_session).get_all_support_users()
     if not support_users:
         console.print(
             "[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]"

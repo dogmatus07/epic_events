@@ -167,7 +167,7 @@ def delete_user(user):
     :return: None
     """
     console.print(
-        f"[bold red]⚠️ Suppression de l'utilisateur : {user.full_name} - {user.username} - {user.email}[/]"
+        f"[bold red]⚠️ Suppression de l'utilisateur : {user.id} - {user.username} - {user.email}[/]"
     )
     return Confirm.ask(
         "[bold red]⚠️ Voulez-vous vraiment supprimer cet utilisateur ?[/]", default=False

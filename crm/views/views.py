@@ -3,7 +3,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 from rich.box import DOUBLE
-from rich.prompt import Prompt, Confirm
+from rich import box
+from rich.prompt import Prompt
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
 
@@ -53,3 +54,23 @@ def authenticate_user():
     else:
         console.print("Authentification échouée, veuillez réessayer", style="bold red")
         return None
+
+
+def display_menu(title, options):
+    """
+    Display menu with common styling
+    :param title: menu title
+    :param options: list of options
+    """
+    clear_screen()
+
+    table = Table(title=f"[bold blue]✨{title}✨[/]", box=box.ROUNDED)
+    table.add_column("[bold green]Index[/]", style="dim", width=6)
+    table.add_column("[bold green]Description[/]")
+
+    for keys, values in options.items():
+        table.add_row(keys, values)
+
+    console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
+    choice = Prompt.ask("[bold cyan]Choisissez une option[/]", choices=options.keys())
+    return str(choice)

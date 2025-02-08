@@ -102,6 +102,8 @@ def commercial_menu(db_session, user_id):
 def support_menu(db_session, user_id):
     """
     Display the specific menu for role : Support
+    :param db_session: database session
+    :param user_id: user id
     """
     while True:
         choice = display_menu(

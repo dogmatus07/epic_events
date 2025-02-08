@@ -116,7 +116,10 @@ def select_client(clients):
         console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
         return
 
-    index = Prompt.ask("[bold cyan]Sélectionnez un client[/]")
+    index = Prompt.ask("[bold cyan][1] Sélectionnez un client[/] | [0] Retour", default="1")
+    if index == "0":
+        console.clear()
+        return
     try:
         index = int(index) - 1
         if 0 <= index < len(clients):
