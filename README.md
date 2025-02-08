@@ -59,3 +59,5 @@ Exemples :
 - Gestion des événements (CRUD)
 - Assigner les événements à la team support
 - Filtrage des événements
+
+## Fonctionnement de l'application Epic Events CRM
