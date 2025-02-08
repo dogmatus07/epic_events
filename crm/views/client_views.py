@@ -9,11 +9,12 @@ from crm.controllers.client_controller import ClientController
 
 console = Console()
 
+
 def clear_screen():
     """
     Clear the screen
     """
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_client_list(clients):
@@ -33,17 +34,19 @@ def display_client_list(clients):
     table.add_column("[bold green]Dernière mise à jour[/]")
     table.add_column("[bold green]Commercial[/]")
     for index, client in enumerate(clients, start=1):
-        commercial_name = client.commercial.full_name if client.commercial else "Non attribué"
+        commercial_name = (
+            client.commercial.full_name if client.commercial else "Non attribué"
+        )
         table.add_row(
             str(index),
-            #str(client.id),
+            # str(client.id),
             client.full_name,
             client.email,
             client.phone,
             client.company_name,
             client.first_contact_date.strftime("%d-%m-%Y"),
             client.last_update_date.strftime("%d-%m-%Y"),
-            commercial_name
+            commercial_name,
         )
 
     console.print(Panel(table, title="🚀 Clients", expand=False))
@@ -60,16 +63,22 @@ def create_client(db_session):
     full_name = Prompt.ask("[bold cyan]Nom complet du client[/]", default="John Doe")
     email = Prompt.ask("[bold cyan]E-mail du client[/]", default="adresse@email.com")
     phone = Prompt.ask("[bold cyan]Téléphone du client[/]", default="0102030405")
-    company_name = Prompt.ask("[bold cyan]Nom de la société du client[/]", default="Ma Société")
+    company_name = Prompt.ask(
+        "[bold cyan]Nom de la société du client[/]", default="Ma Société"
+    )
     first_contact_date_str = Prompt.ask(
         "[bold cyan]Date du premier contact (DD-MM-YYYY)[/]",
-        default=datetime.now().strftime("%d-%m-%Y"))
+        default=datetime.now().strftime("%d-%m-%Y"),
+    )
     last_update_date_str = Prompt.ask(
         "[bold cyan]Date  mise à jour (DD-MM-YYYY)[/]",
-        default=datetime.now().strftime("%d-%m-%Y"))
+        default=datetime.now().strftime("%d-%m-%Y"),
+    )
 
     try:
-        first_contact_date = datetime.strptime(first_contact_date_str, "%d-%m-%Y").date()
+        first_contact_date = datetime.strptime(
+            first_contact_date_str, "%d-%m-%Y"
+        ).date()
         last_update_date = datetime.strptime(last_update_date_str, "%d-%m-%Y").date()
     except ValueError:
         console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
@@ -81,7 +90,7 @@ def create_client(db_session):
         "phone": phone,
         "company_name": company_name,
         "first_contact_date": first_contact_date,
-        "last_update_date": last_update_date
+        "last_update_date": last_update_date,
     }
 
     client_controller = ClientController(db_session)
@@ -90,7 +99,9 @@ def create_client(db_session):
         console.print("[bold green]✅ Nouveau client créé avec succès[/]")
         return new_client
     else:
-        console.print("[bold red]❌ Une erreur s'est produite lors de la création du client[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la création du client[/]"
+        )
         return None
 
 
@@ -138,18 +149,24 @@ def update_client(db_session):
     clear_screen()
     console.print("[bold blue]🔄 Modification du client : {client.full_name}🔄[/]\n")
 
-    full_name = Prompt.ask("[bold cyan]Nom complet du client[/]", default=client.full_name)
+    full_name = Prompt.ask(
+        "[bold cyan]Nom complet du client[/]", default=client.full_name
+    )
     email = Prompt.ask("[bold cyan]E-mail du client[/]", default=client.email)
     phone = Prompt.ask("[bold cyan]Téléphone du client[/]", default=client.phone)
-    company_name = Prompt.ask("[bold cyan]Nom de la société du client[/]", default=client.company_name)
+    company_name = Prompt.ask(
+        "[bold cyan]Nom de la société du client[/]", default=client.company_name
+    )
     first_contact_date_str = Prompt.ask(
         "[bold cyan]Date du premier contact (DD-MM-YYYY)[/]",
-        default=client.first_contact_date.strftime("%d-%m-%Y")
+        default=client.first_contact_date.strftime("%d-%m-%Y"),
     )
     last_update_date = datetime.now().date()
 
     try:
-        first_contact_date = datetime.strptime(first_contact_date_str, "%d-%m-%Y").date()
+        first_contact_date = datetime.strptime(
+            first_contact_date_str, "%d-%m-%Y"
+        ).date()
     except ValueError:
         console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
         return None
@@ -160,7 +177,7 @@ def update_client(db_session):
         "phone": phone,
         "company_name": company_name,
         "first_contact_date": first_contact_date,
-        "last_update_date": last_update_date
+        "last_update_date": last_update_date,
     }
 
     updated_client = client_controller.update_client(client.id, updated_data)
@@ -168,7 +185,9 @@ def update_client(db_session):
         console.print("[bold green]✅ Client mis à jour avec succès[/]")
         return updated_client
     else:
-        console.print("[bold red]❌ Une erreur s'est produite lors de la mise à jour du client[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la mise à jour du client[/]"
+        )
         return None
 
 
@@ -195,7 +214,9 @@ def delete_client(db_session):
         if success:
             console.print("[bold green]✅ Client supprimé avec succès[/]")
         else:
-            console.print("[bold red]❌ Une erreur s'est produite lors de la suppression du client[/]")
+            console.print(
+                "[bold red]❌ Une erreur s'est produite lors de la suppression du client[/]"
+            )
 
 
 def client_menu(db_session, create_mode=False, update_mode=False):
@@ -214,9 +235,11 @@ def client_menu(db_session, create_mode=False, update_mode=False):
     while True:
         clear_screen()
         console.print("[bold blue]👥 Menu Client 👥[/]")
-        choice = Prompt.ask("[bold cyan]1. Afficher clients | 2. Ajouter client | 3. Modifier client | 4. Supprimer "
-                            "client | 0. Retour[/]",
-                            choices=["1", "2", "3", "4", "0"])
+        choice = Prompt.ask(
+            "[bold cyan]1. Afficher clients | 2. Ajouter client | 3. Modifier client | 4. Supprimer "
+            "client | 0. Retour[/]",
+            choices=["1", "2", "3", "4", "0"],
+        )
 
         if choice == "1":
             clients = client_controller.get_all_clients()

@@ -21,18 +21,22 @@ class UserController:
         """
         Get all users with a specific role.
         """
-        return self.db_session.query(User).join(Role).filter(Role.role_name == role_name)
+        return (
+            self.db_session.query(User).join(Role).filter(Role.role_name == role_name)
+        )
 
     def create_user(self, user_data: dict):
         """
         Create a new user.
         """
         # check if user already exist
-        existing_user = self.db_session.query(User).filter_by(email=user_data.get('email'))
+        existing_user = self.db_session.query(User).filter_by(
+            email=user_data.get("email")
+        )
         if existing_user:
             return None
 
-        hashed_password = PasswordUtils.hash_password(user_data.pop('password'))
+        hashed_password = PasswordUtils.hash_password(user_data.pop("password"))
         new_user = User(**user_data, password=hashed_password)
         self.db_session.add(new_user)
         self.db_session.commit()
@@ -47,7 +51,9 @@ class UserController:
             return None
 
         if "password" in updated_data:
-            updated_data["hashed_password"] = PasswordUtils.hash_password(updated_data.pop("password"))
+            updated_data["hashed_password"] = PasswordUtils.hash_password(
+                updated_data.pop("password")
+            )
 
         for key, value in updated_data.items():
             setattr(user, key, value)

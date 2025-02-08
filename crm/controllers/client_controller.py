@@ -3,7 +3,7 @@ from crm.models.models import Client
 from datetime import datetime
 
 
-class ClientController():
+class ClientController:
     """
     Controller class for Client model.
     """

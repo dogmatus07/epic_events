@@ -16,7 +16,7 @@ def clear_screen():
     """
     Clear the screen
     """
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_user_list(users):
@@ -25,6 +25,7 @@ def display_user_list(users):
     :param users:
     :return: list of users
     """
+    console.clear()
     table = Table(title="[bold blue]✨Liste des utilisateurs✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="dim", width=6)
     table.add_column("[bold green]ID[/]", style="dim", width=6)
@@ -60,32 +61,24 @@ def select_user(users, default_id=None):
     display_user_list(users)
     selected_index = Prompt.ask(
         "[bold cyan]Sélectionnez un utilisateur par son index[/]",
-        choices=[str(i) for i in range(1, len(users) + 1)]
+        choices=[str(i) for i in range(1, len(users) + 1)],
     )
     return users[int(selected_index) - 1]
+
 
 def create_user(db_session):
     """
     Display a form for creating a new user
     :return: dictionary with user data
     """
+    console.clear()
     console.print("[bold blue]➕ Création d'un nouvel utilisateur ➕[/]\n")
-    username = Prompt.ask(
-        "[bold cyan]Nom d'utilisateur[/]",
-        default="john_doe"
-    )
+    username = Prompt.ask("[bold cyan]Nom d'utilisateur[/]", default="john_doe")
     email = Prompt.ask(
-        "[bold cyan]E-mail de l'utilisateur[/]",
-        default="adresse@email.com"
+        "[bold cyan]E-mail de l'utilisateur[/]", default="adresse@email.com"
     )
-    phone_number = Prompt.ask(
-        "[bold cyan]Téléphone[/]",
-        default="0102030405"
-    )
-    is_active = Confirm.ask(
-        "[bold cyan]Activer l'utilisateur ?[/]",
-        default=True
-    )
+    phone_number = Prompt.ask("[bold cyan]Téléphone[/]", default="0102030405")
+    is_active = Confirm.ask("[bold cyan]Activer l'utilisateur ?[/]", default=True)
 
     # get the list of roles
     roles = RoleController(db_session).get_all_roles()
@@ -98,12 +91,10 @@ def create_user(db_session):
         console.print(f"[bold green]{role.role_name}[/]")
 
     role_name = Prompt.ask(
-        "[bold cyan]Rôle de l'utilisateur[/]", choices=[role.role_name for role in roles]
+        "[bold cyan]Rôle de l'utilisateur[/]",
+        choices=[role.role_name for role in roles],
     )
-    password = Prompt.ask(
-        "[bold cyan]Mot de passe[/]",
-        password=True
-    )
+    password = Prompt.ask("[bold cyan]Mot de passe[/]", password=True)
 
     return {
         "username": username,
@@ -111,7 +102,7 @@ def create_user(db_session):
         "phone_number": phone_number,
         "is_active": is_active,
         "role_name": role_name,
-        "password": password
+        "password": password,
     }
 
 
@@ -122,23 +113,15 @@ def update_user(user, db_session):
     :param db_session:
     :return: updated user data
     """
-    console.print(f"[bold blue]🔄 Modification de l'utilisateur : {user.username}🔄[/]\n")
+    console.print(
+        f"[bold blue]🔄 Modification de l'utilisateur : {user.username}🔄[/]\n"
+    )
 
-    username = Prompt.ask(
-        "[bold cyan]Nom d'utilisateur[/]",
-        default=user.username
-    )
-    email = Prompt.ask(
-        "[bold cyan]E-mail de l'utilisateur[/]",
-        default=user.email
-    )
-    phone_number = Prompt.ask(
-        "[bold cyan]Téléphone[/]",
-        default=user.phone_number
-    )
+    username = Prompt.ask("[bold cyan]Nom d'utilisateur[/]", default=user.username)
+    email = Prompt.ask("[bold cyan]E-mail de l'utilisateur[/]", default=user.email)
+    phone_number = Prompt.ask("[bold cyan]Téléphone[/]", default=user.phone_number)
     is_active = Confirm.ask(
-        "[bold cyan]Activer l'utilisateur ?[/]",
-        default=user.is_active
+        "[bold cyan]Activer l'utilisateur ?[/]", default=user.is_active
     )
     # get available roles
     roles = RoleController(db_session).get_all_roles()
@@ -152,12 +135,12 @@ def update_user(user, db_session):
         role_name = Prompt.ask(
             "[bold cyan]Rôle de l'utilisateur[/]",
             choices=[role.role_name for role in roles],
-            default=user.role.role_name
+            default=user.role.role_name,
         )
 
     password = Prompt.ask(
         "[bold cyan]Mot de passe[/] (laissez vide pour ne pas le changer)",
-        password=True
+        password=True,
     )
 
     user_data = {
@@ -183,8 +166,12 @@ def delete_user(user):
     :param user:
     :return: None
     """
-    console.print(f"[bold red]⚠️ Suppression de l'utilisateur : {user.full_name} - {user.username} - {user.email}[/]")
-    return Confirm.ask("[bold red]⚠️ Voulez-vous vraiment supprimer cet utilisateur ?[/]", default=False)
+    console.print(
+        f"[bold red]⚠️ Suppression de l'utilisateur : {user.full_name} - {user.username} - {user.email}[/]"
+    )
+    return Confirm.ask(
+        "[bold red]⚠️ Voulez-vous vraiment supprimer cet utilisateur ?[/]", default=False
+    )
 
 
 def user_menu(db_session):
@@ -200,7 +187,7 @@ def user_menu(db_session):
         choice = Prompt.ask(
             "[bold cyan]1. Afficher utilisateurs | 2. Ajouter utilisateur | 3. Modifier utilisateur | 4. Supprimer "
             "utilisateur | 0. Retour[/]",
-            choices = ["1", "2", "3", "4", "0"]
+            choices=["1", "2", "3", "4", "0"],
         )
 
         if choice == "1":
@@ -245,6 +232,6 @@ def select_support_user(support_users):
 
     user_index = Prompt.ask(
         "[bold cyan]Sélectionnez un utilisateur de support par son index[/]",
-        choices=[str(i) for i in range(1, len(support_users) + 1)]
+        choices=[str(i) for i in range(1, len(support_users) + 1)],
     )
     return support_users[int(user_index) - 1]

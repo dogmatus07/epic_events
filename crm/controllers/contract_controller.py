@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from crm.models.models import Contract
 
 
-class ContractController():
+class ContractController:
     """
     Controller class for Contract model.
     """

@@ -17,7 +17,7 @@ def clear_screen():
     """
     Clear the screen
     """
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_menu(title, options):
@@ -28,10 +28,7 @@ def display_menu(title, options):
     """
     clear_screen()
 
-    table = Table(
-        title=f"[bold blue]✨{title}✨[/]",
-        box=box.ROUNDED
-    )
+    table = Table(title=f"[bold blue]✨{title}✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="dim", width=6)
     table.add_column("[bold green]Description[/]")
 
@@ -48,13 +45,16 @@ def gestion_menu(db_session, user_id):
     Display the specific menu for role : Gestion
     """
     while True:
-        choice = display_menu("Menu Gestion", {
-            "1": "Gérer Collaborateurs",
-            "2": "Gérer Contrats",
-            "3": "Afficher Événements",
-            "4": "Assigner Support",
-            "0": "Quitter"
-        })
+        choice = display_menu(
+            "Menu Gestion",
+            {
+                "1": "Gérer Collaborateurs",
+                "2": "Gérer Contrats",
+                "3": "Afficher Événements",
+                "4": "Assigner Support",
+                "0": "Quitter",
+            },
+        )
 
         if choice == "1":
             user_menu(db_session)
@@ -73,14 +73,17 @@ def commercial_menu(db_session, user_id):
     Display the specific menu for role : Commercial
     """
     while True:
-        choice = display_menu("Menu Commercial", {
-            "1": "Créer Clients",
-            "2": "Mettre à jour Clients",
-            "3": "Modifier Contrats",
-            "4": "Créer Événement",
-            "5": "Filtrer Contrats",
-            "0": "Quitter"
-        })
+        choice = display_menu(
+            "Menu Commercial",
+            {
+                "1": "Créer Clients",
+                "2": "Mettre à jour Clients",
+                "3": "Modifier Contrats",
+                "4": "Créer Événement",
+                "5": "Filtrer Contrats",
+                "0": "Quitter",
+            },
+        )
 
         if choice == "1":
             client_menu(db_session, create_mode=True)
@@ -101,11 +104,14 @@ def support_menu(db_session, user_id):
     Display the specific menu for role : Support
     """
     while True:
-        choice = display_menu("Menu Support", {
-            "1": "Afficher Événements",
-            "2": "Mettre à jour Événements",
-            "0": "Quitter"
-        })
+        choice = display_menu(
+            "Menu Support",
+            {
+                "1": "Afficher Événements",
+                "2": "Mettre à jour Événements",
+                "0": "Quitter",
+            },
+        )
 
         if choice == "1":
             event_menu(db_session, user_id, filter_mode=True, support_only=True)
@@ -124,7 +130,7 @@ def main_menu(role, db_session, user_id):
     role_menus = {
         "Gestion": lambda: gestion_menu(db_session, user_id),
         "Commercial": lambda: commercial_menu(db_session, user_id),
-        "Support": lambda: support_menu(db_session, user_id)
+        "Support": lambda: support_menu(db_session, user_id),
     }
 
     menu_function = role_menus.get(role)

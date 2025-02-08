@@ -20,10 +20,12 @@ class RoleController:
         """
         Create a new role.
         """
-        existing_role = self.db_session.query(Role).filter_by(role_name = role_name).first()
+        existing_role = (
+            self.db_session.query(Role).filter_by(role_name=role_name).first()
+        )
         if existing_role:
             return None
-        new_role = Role(role_name = role_name)
+        new_role = Role(role_name=role_name)
         self.db_session.add(new_role)
         self.db_session.commit()
         return new_role
@@ -38,4 +40,3 @@ class RoleController:
         self.db_session.delete(role)
         self.db_session.commit()
         return True
-

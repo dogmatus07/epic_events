@@ -54,7 +54,11 @@ class EventController:
             current_user = self.get_current_user()
             if not current_user:
                 return []
-            return self.db_session.query(Event).filter(Event.support_id.is_(current_user.id)).all()
+            return (
+                self.db_session.query(Event)
+                .filter(Event.support_id.is_(current_user.id))
+                .all()
+            )
         return self.db_session.query(Event).all()
 
     def get_unassigned_events(self):
@@ -83,7 +87,11 @@ class EventController:
             if not current_user:
                 return []
 
-            return self.db_session.query(Event).filter(Event.support_id.is_(current_user.id)).all()
+            return (
+                self.db_session.query(Event)
+                .filter(Event.support_id.is_(current_user.id))
+                .all()
+            )
         return self.db_session.query(Event).all()
 
     def get_current_user(self):
@@ -92,5 +100,8 @@ class EventController:
         """
         if not self.current_user_id:
             return None
-        return self.db_session.query(User).filter(str(User.id) == self.current_user_id).first()
-
+        return (
+            self.db_session.query(User)
+            .filter(str(User.id) == self.current_user_id)
+            .first()
+        )

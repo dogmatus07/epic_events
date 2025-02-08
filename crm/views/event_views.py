@@ -20,7 +20,7 @@ def clear_screen():
     """
     Clear the screen
     """
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_events_list(events):
@@ -41,7 +41,9 @@ def display_events_list(events):
 
     for event in events:
         contract_id = event.contract.id if event.contract else "Non attribué"
-        support_contact = event.support_contact.full_name if event.support_contact else "Non attribué"
+        support_contact = (
+            event.support_contact.full_name if event.support_contact else "Non attribué"
+        )
         table.add_row(
             str(event.id),
             contract_id,
@@ -50,7 +52,7 @@ def display_events_list(events):
             event.location,
             str(event.attendees),
             support_contact,
-            event.notes
+            event.notes,
         )
 
     console.print(Panel(table, title="📆 Evénements", expand=False))
@@ -67,7 +69,7 @@ def select_event(events):
     display_events_list(events)
     event_index = Prompt.ask(
         "[bold cyan]Sélectionnez un événement par son Index[/]",
-        choices=[str(i) for i in range(1, len(events) + 1)]
+        choices=[str(i) for i in range(1, len(events) + 1)],
     )
     return events[int(event_index) - 1]
 
@@ -83,29 +85,37 @@ def create_event(db_session):
     contracts = ContractController(db_session).get_all_contracts()
     selected_contract = select_contract(contracts)
     if not selected_contract:
-        console.print("[bold red]❌ Aucun contrat sélectionné pour créer un événement[/]")
+        console.print(
+            "[bold red]❌ Aucun contrat sélectionné pour créer un événement[/]"
+        )
         return None
 
     support_users = UserController(db_session).get_all_support_users().all()
     if not support_users:
-        console.print("[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]")
+        console.print(
+            "[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]"
+        )
         return None
 
     selected_support = select_support_user(support_users)
     if not selected_support:
-        console.print("[bold red]❌ Aucun utilisateur de support sélectionné pour créer un événement[/]")
+        console.print(
+            "[bold red]❌ Aucun utilisateur de support sélectionné pour créer un événement[/]"
+        )
         return None
 
     event_date_start_str = Prompt.ask(
         "[bold cyan]Date de début de l'événement (DD-MM-YYYY)[/]",
-        default=datetime.now().date()
+        default=datetime.now().date(),
     )
     event_date_end_str = Prompt.ask(
         "[bold cyan]Date de fin de l'événement (DD-MM-YYYY)[/]",
-        default=datetime.now().date()
+        default=datetime.now().date(),
     )
     try:
-        event_date_start_str = datetime.strptime(event_date_start_str, "%d-%m-%Y").date()
+        event_date_start_str = datetime.strptime(
+            event_date_start_str, "%d-%m-%Y"
+        ).date()
         event_date_end_str = datetime.strptime(event_date_end_str, "%d-%m-%Y").date()
     except ValueError:
         console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
@@ -122,7 +132,7 @@ def create_event(db_session):
         "location": location,
         "attendees": int(attendees),
         "notes": notes,
-        "support_id": selected_support.id
+        "support_id": selected_support.id,
     }
     return event_data
 
@@ -138,7 +148,9 @@ def update_event(event, db_session):
     # choose a contract
     contracts = ContractController(db_session).get_all_contracts()
     if not contracts:
-        console.print("[bold red]❌ Aucun contrat disponible pour créer un événement[/]")
+        console.print(
+            "[bold red]❌ Aucun contrat disponible pour créer un événement[/]"
+        )
         return None
     else:
         selected_contract = select_contract(contracts)
@@ -146,19 +158,21 @@ def update_event(event, db_session):
     # choose a support user
     support_users = UserController(db_session).get_all_support_users()
     if not support_users:
-        console.print("[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]")
+        console.print(
+            "[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]"
+        )
         return None
     else:
         selected_support = select_support_user(support_users)
 
     event_date_start_str = Prompt.ask(
         "[bold cyan]Date de début de l'événement (DD-MM-YYYY)[/]",
-        default=event.event_date_start.strftime("%d-%m-%Y")
+        default=event.event_date_start.strftime("%d-%m-%Y"),
     )
 
     event_date_end_str = Prompt.ask(
         "[bold cyan]Date de fin de l'événement (DD-MM-YYYY)[/]",
-        default=event.event_date_end.strftime("%d-%m-%Y")
+        default=event.event_date_end.strftime("%d-%m-%Y"),
     )
     try:
         event_date_start = datetime.strptime(event_date_start_str, "%d-%m-%Y").date()
@@ -168,7 +182,9 @@ def update_event(event, db_session):
         return None
 
     location = Prompt.ask("[bold cyan]Lieu de l'événement[/]", default=event.location)
-    attendees = Prompt.ask("[bold cyan]Nombre de participants[/]", default=event.attendees)
+    attendees = Prompt.ask(
+        "[bold cyan]Nombre de participants[/]", default=event.attendees
+    )
     notes = Prompt.ask("[bold cyan]Notes[/]", default=event.notes)
 
     return {
@@ -178,7 +194,7 @@ def update_event(event, db_session):
         "location": location,
         "attendees": int(attendees),
         "notes": notes,
-        "support_id": selected_support.id if selected_support else event.support_id
+        "support_id": selected_support.id if selected_support else event.support_id,
     }
 
 
@@ -188,19 +204,21 @@ def delete_event(event):
     :param event:
     :return: boolean
     """
-    console.print(f"[bold red]⚠️ Suppression de l'événement : {event.id} appartenant au contrat {event.contract}[/]")
+    console.print(
+        f"[bold red]⚠️ Suppression de l'événement : {event.id} appartenant au contrat {event.contract}[/]"
+    )
     return Confirm.ask("[bold red]Confirmer la suppression ?[/]", default=False)
 
 
 def event_menu(
-        db_session,
-        user_id,
-        filter_mode=False,
-        assign_support_mode=False,
-        create_event_mode=False,
-        update_event_mode=False,
-        display_mode=False,
-        support_only=False
+    db_session,
+    user_id,
+    filter_mode=False,
+    assign_support_mode=False,
+    create_event_mode=False,
+    update_event_mode=False,
+    display_mode=False,
+    support_only=False,
 ):
     """
     Menu to manage events

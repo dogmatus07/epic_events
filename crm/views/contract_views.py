@@ -16,7 +16,7 @@ def clear_screen():
     """
     Clear the screen
     """
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_contract_list(contracts):
@@ -25,6 +25,7 @@ def display_contract_list(contracts):
     :param contracts:
     :return: list of contracts
     """
+    console.clear()
     table = Table(title="[bold blue]✨Liste des contrats✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="dim", width=6)
     table.add_column("[bold green]ID Contrat[/]")
@@ -42,7 +43,7 @@ def display_contract_list(contracts):
             str(contract.total_amount),
             str(contract.amount_due),
             "✅" if contract.signed else "❌",
-            contract.commercial.full_name if contract.commercial else "Non attribué"
+            contract.commercial.full_name if contract.commercial else "Non attribué",
         )
 
     console.print(Panel(table, title="📋 Contrats", expand=False))
@@ -59,7 +60,7 @@ def select_contract(contracts):
     display_contract_list(contracts)
     try:
         index = Prompt.ask("[bold cyan]Sélectionnez un contrat[/]", default=1)
-        if 1<= int(index) <= len(contracts):
+        if 1 <= int(index) <= len(contracts):
             return contracts[int(index) - 1]
         else:
             console.print("[bold red]❌ Index invalide[/]")
@@ -78,6 +79,7 @@ def create_contract(db_session):
     # display the list of clients
     client_controller = ClientController(db_session)
     clients = client_controller.get_all_clients()
+    console.clear()
 
     if not clients:
         console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
@@ -93,10 +95,10 @@ def create_contract(db_session):
     signed = Confirm.ask("[bold cyan]Le contrat est-il signé ?[/]", default=False)
 
     contract_data = {
-        'client_id': client.id,
-        'total_amount': total_amount,
-        'amount_due': amount_due,
-        'signed': signed
+        "client_id": client.id,
+        "total_amount": total_amount,
+        "amount_due": amount_due,
+        "signed": signed,
     }
 
     contract_controller = ContractController(db_session)
@@ -106,7 +108,9 @@ def create_contract(db_session):
         console.print("[bold green]✅ Nouveau contrat créé avec succès[/]")
         return created_contract
     else:
-        console.print("[bold red]❌ Une erreur s'est produite lors de la création du contrat[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la création du contrat[/]"
+        )
         return None
 
 
@@ -129,14 +133,18 @@ def update_contract(db_session):
     if not contract:
         return None
 
-    total_amount = Prompt.ask("[bold cyan]Montant total du contrat[/]", default=contract.total_amount)
+    total_amount = Prompt.ask(
+        "[bold cyan]Montant total du contrat[/]", default=contract.total_amount
+    )
     amount_due = Prompt.ask("[bold cyan]Montant dû[/]", default=contract.amount_due)
-    signed = Confirm.ask("[bold cyan]Le contrat est-il signé ?[/]", default=contract.signed)
+    signed = Confirm.ask(
+        "[bold cyan]Le contrat est-il signé ?[/]", default=contract.signed
+    )
 
     updated_data = {
         "total_amount": total_amount,
         "amount_due": amount_due,
-        "signed": signed
+        "signed": signed,
     }
 
     updated_contract = contact_controller.update_contract(contract.id, updated_data)
@@ -144,7 +152,9 @@ def update_contract(db_session):
         console.print("[bold green]✅ Contrat mis à jour avec succès[/]")
         return updated_contract
     else:
-        console.print("[bold red]❌ Une erreur s'est produite lors de la mise à jour du contrat[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la mise à jour du contrat[/]"
+        )
         return None
 
 
@@ -158,7 +168,9 @@ def delete_contract(db_session):
     contracts = contract_controller.get_all_contracts()
 
     if not contracts:
-        console.print("[bold red]❌ Aucun contrat disponible pour supprimer un contrat[/]")
+        console.print(
+            "[bold red]❌ Aucun contrat disponible pour supprimer un contrat[/]"
+        )
         return
 
     # select a contract to delete
@@ -166,13 +178,18 @@ def delete_contract(db_session):
     if not contract:
         return
 
-    confirm = Confirm.ask(f"[bold red]⚠️ Voulez-vous vraiment supprimer le contrat appartenant à : {contract.client.full_name}?[/]", default=False)
+    confirm = Confirm.ask(
+        f"[bold red]⚠️ Voulez-vous vraiment supprimer le contrat appartenant à : {contract.client.full_name}?[/]",
+        default=False,
+    )
     if confirm:
         success = contract_controller.delete_contract(contract)
         if success:
             console.print("[bold green]✅ Contrat supprimé avec succès[/]")
         else:
-            console.print("[bold red]❌ Une erreur s'est produite lors de la suppression du contrat[/]")
+            console.print(
+                "[bold red]❌ Une erreur s'est produite lors de la suppression du contrat[/]"
+            )
 
 
 def contract_menu(db_session, update_mode=False, filter_mode=False):
@@ -191,14 +208,14 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
         contracts = contract_controller.get_all_contracts()
         display_contract_list(contracts)
         return
-    clear_screen()
+    console.clear()
 
     while True:
         console.print("[bold blue]📝 Menu Contrat 📝[/]")
         choice = Prompt.ask(
             "[bold cyan]1. Afficher contrats | 2. Ajouter contrat | 3. Modifier contrat | 4. Supprimer contrat | 0. "
             "Retour[/]",
-            choices=["1", "2", "3", "4", "0"]
+            choices=["1", "2", "3", "4", "0"],
         )
 
         if choice == "1":
