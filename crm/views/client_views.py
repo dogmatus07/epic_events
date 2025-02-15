@@ -50,6 +50,7 @@ def display_client_list(clients):
         )
 
     console.print(Panel(table, title="🚀 Clients", expand=False))
+    Prompt.ask("Appuyez sur une touche pour continuer...")
 
 
 def create_client(db_session):
@@ -237,6 +238,7 @@ def client_menu(db_session, create_mode=False, update_mode=False):
 
     while True:
         clear_screen()
+
         console.print("[bold blue]👥 Menu Client 👥[/]")
         choice = Prompt.ask(
             "[bold cyan]1. Afficher clients | 2. Ajouter client | 3. Modifier client | 4. Supprimer "

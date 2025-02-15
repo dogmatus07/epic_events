@@ -30,16 +30,21 @@ class UserController:
         Create a new user.
         """
         # check if user already exist
+        self.db_session.expire_all()
         existing_user = self.db_session.query(User).filter_by(
-            email=user_data.get("email")
-        )
+            email=user_data.get("email")).first()
         if existing_user:
             return None
 
+        password = user_data.get("password")
+        if not password:
+            return None
+
         hashed_password = PasswordUtils.hash_password(user_data.pop("password"))
-        new_user = User(**user_data, password=hashed_password)
+        new_user = User(**user_data, hashed_password=hashed_password)
         self.db_session.add(new_user)
         self.db_session.commit()
+        user_verif = self.db_session.query(User).filter_by(email=user_data["email"]).first()
         return new_user
 
     def update_user(self, user_id, updated_data: dict):

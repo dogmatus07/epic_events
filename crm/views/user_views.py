@@ -96,7 +96,7 @@ def create_user(db_session):
     )
     password = Prompt.ask("[bold cyan]Mot de passe[/]", password=True)
 
-    return {
+    user_data = {
         "username": username,
         "email": email,
         "phone_number": phone_number,
@@ -104,6 +104,9 @@ def create_user(db_session):
         "role_name": role_name,
         "password": password,
     }
+
+    print("DEBUG: Données utilisateur générées :", user_data)
+    return user_data
 
 
 def update_user(user, db_session):
@@ -181,22 +184,43 @@ def user_menu(db_session):
     """
 
     user_controller = UserController(db_session)
+    print("DEBUG: user_controller instancié", user_controller)
     clear_screen()
     while True:
-        console.print("[bold blue]👩‍💼 Menu Utilisateur 👩‍💼[/]")
+        table = Table(title="[bold blue]👩‍💼 Menu Utilisateur 👩‍💼[/]", box=box.ROUNDED)
+        table.add_column("[bold green]Index[/]", style="dim", width=6)
+        table.add_column("[bold green]Options[/]")
+        options = {
+            "1": "Afficher utilisateurs",
+            "2": "Ajouter utilisateur",
+            "3": "Modifier utilisateur",
+            "4": "Supprimer utilisateur",
+            "0": "Retour",
+        }
+        for idx, option in options.items():
+            table.add_row(str(idx), option)
+
+        console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
         choice = Prompt.ask(
-            "[bold cyan]1. Afficher utilisateurs | 2. Ajouter utilisateur | 3. Modifier utilisateur | 4. Supprimer "
-            "utilisateur | 0. Retour[/]",
+            "[bold cyan]Choisissez une option[/]",
             choices=["1", "2", "3", "4", "0"],
         )
 
         if choice == "1":
             users = user_controller.get_all_users()
             display_user_list(users)
+            Prompt.ask("[bold cyan]Appuyez sur une touche pour retourner au menu[/]")
         elif choice == "2":
             user_data = create_user(db_session)
             if user_data:
-                user_controller.create_user(user_data)
+                Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer[/]")
+                created_user = user_controller.create_user(user_data)
+                if created_user:
+                    print("Utilisateur ajouté avec succès !")
+                else:
+                    print("Échec de l'ajout de l'utilisateur")
+            else:
+                print("Échec de l'ajout de l'utilisateur")
         elif choice == "3":
             users = user_controller.get_all_users()
             if users:

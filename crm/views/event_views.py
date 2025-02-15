@@ -45,7 +45,7 @@ def display_events_list(events):
     for event in events:
         contract_id = event.contract.id if event.contract else "Non attribué"
         support_contact = (
-            event.support_contact.full_name if event.support_contact else "Non attribué"
+            event.support_contact.username if event.support_contact else "Non attribué"
         )
         table.add_row(
             str(event.id),
@@ -59,6 +59,7 @@ def display_events_list(events):
         )
 
     console.print(Panel(table, title="📆 Evénements", expand=False))
+    Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
 
 
 def select_event(events):
@@ -67,6 +68,7 @@ def select_event(events):
     """
     if not events:
         console.print("[bold red]❌ Aucun événement disponible[/]")
+        Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
         return None
 
     display_events_list(events)
@@ -232,14 +234,21 @@ def event_menu(
     :param update_event_mode: update an event
     :param support_only: display events assigned to support user
     :param display_mode: display all events
+    :param user_id: user id
     """
+    console.print("[bold yellow]DEBUG: Entrée dans event_menu()[/]")
     event_controller = EventController(db_session, current_user_id=user_id)
 
     if filter_mode:
+        console.print("[bold yellow]DEBUG: Mode Filtrage activé[/]")
         events = event_controller.filter_events(support_only=support_only)
         display_events_list(events)
     elif assign_support_mode:
-        events = event_controller.get_unassigned_events()
+        console.print("[bold yellow]DEBUG: Mode Assign activé[/]")
+        Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
+        events = event_controller.get_unassigned_events(db_session)
+        console.print("[bold yellow]DEBUG: Événements non attribués[/]", events)
+        Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
         event = select_event(events)
         if event:
             support_users = UserController(db_session).get_all_support_users().all()
@@ -247,13 +256,16 @@ def event_menu(
             if selected_support:
                 event_controller.assign_support(event.id, selected_support.id)
     elif display_mode:
+        console.print("[bold yellow]DEBUG: Mode Affichage activé[/]")
         events = event_controller.get_events(db_session)
         display_events_list(events)
     elif create_event_mode:
+        console.print("[bold yellow]DEBUG: Création d'événement[/]")
         event_data = create_event(db_session)
         if event_data:
             event_controller.create_event(event_data)
     elif update_event_mode:
+        console.print("[bold yellow]DEBUG: Mise à jour d'événements[/]")
         events = event_controller.get_events(support_only=support_only)
         event = select_event(events)
         if event:

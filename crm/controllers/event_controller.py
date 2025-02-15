@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 from crm.models.models import Event, User
+from rich.console import Console
 
+
+console = Console()
 
 class EventController:
     """
@@ -61,11 +64,12 @@ class EventController:
             )
         return self.db_session.query(Event).all()
 
-    def get_unassigned_events(self):
+    def get_unassigned_events(self, db_session):
         """
         Get all events that are not assigned to a support user
         """
-        return self.db_session.query(Event).filter(Event.support_id.is_(None)).all()
+        events = self.db_session.query(Event).filter(Event.support_id.is_(None)).all()
+        return events
 
     def assign_support(self, event_id, support_id):
         """
@@ -78,10 +82,12 @@ class EventController:
             event.support_id = support_id
             self.db_session.commit()
 
-    def get_events(self, support_only=False):
+    def get_events(self, db_session, support_only=False):
         """
         Get all events or only events assigned to a support user
         """
+        console.print("[bold yellow]DEBUG: Récupération des événements en cours...[/]")
+        events = db_session.query(Event).all()
         if support_only:
             current_user = self.get_current_user()
             if not current_user:
@@ -92,7 +98,7 @@ class EventController:
                 .filter(Event.support_id.is_(current_user.id))
                 .all()
             )
-        return self.db_session.query(Event).all()
+        return events
 
     def get_current_user(self):
         """

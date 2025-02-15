@@ -28,12 +28,9 @@ def display_contract_list(contracts):
     console.clear()
     table = Table(title="[bold blue]✨Liste des contrats✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="dim", width=6)
-    table.add_column("[bold green]ID Contrat[/]")
-    table.add_column("[bold green]Client[/]")
-    table.add_column("[bold green]Montant total[/]")
-    table.add_column("[bold green]Montant dû[/]")
-    table.add_column("[bold green]Signé[/]")
-    table.add_column("[bold green]Commercial[/]")
+    options = ["ID Contrat", "Client", "Montant total", "Montant dû", "Signé", "Commercial"]
+    for idx, option in enumerate(options, start=1):
+        table.add_column(f"[bold green]{option}[/]")
     for idx, contract in enumerate(contracts, start=1):
         client_name = contract.client.full_name if contract.client else "Non attribué"
         table.add_row(
@@ -183,7 +180,7 @@ def delete_contract(db_session):
         default=False,
     )
     if confirm:
-        success = contract_controller.delete_contract(contract)
+        success = contract_controller.delete_contract(contract.id)
         if success:
             console.print("[bold green]✅ Contrat supprimé avec succès[/]")
         else:
@@ -211,16 +208,22 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
     console.clear()
 
     while True:
-        console.print("[bold blue]📝 Menu Contrat 📝[/]")
+        table = Table(title="[bold blue]📝 Menu Contrat 📝[/]", box=box.ROUNDED)
+        table.add_column("[bold green]Index[/]", style="dim", width=6)
+        table.add_column("[bold green]Options[/]")
+        options = ["Afficher contrats", "Ajouter contrat", "Modifier contrat", "Supprimer contrat", "Retour"]
+        for idx, option in enumerate(options, start=1):
+            table.add_row(str(idx), option)
+        console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
         choice = Prompt.ask(
-            "[bold cyan]1. Afficher contrats | 2. Ajouter contrat | 3. Modifier contrat | 4. Supprimer contrat | 0. "
-            "Retour[/]",
+            "[bold cyan]Choisissez une option[/]",
             choices=["1", "2", "3", "4", "0"],
         )
 
         if choice == "1":
             contracts = contract_controller.get_all_contracts()
             display_contract_list(contracts)
+            Prompt.ask("[bold cyan]Appuyez sur une touche pour retourner au menu[/]")
         elif choice == "2":
             create_contract(db_session)
         elif choice == "3":

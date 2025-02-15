@@ -52,6 +52,7 @@ def gestion_menu(db_session, user_id):
                 "2": "Gérer Contrats",
                 "3": "Afficher Événements",
                 "4": "Assigner Support",
+                "5": "Afficher Clients",
                 "0": "Quitter",
             },
         )
@@ -61,9 +62,13 @@ def gestion_menu(db_session, user_id):
         elif choice == "2":
             contract_menu(db_session)
         elif choice == "3":
+            console.print("[bold yellow]DEBUG: Affichage des événements choisi[/]")
             event_menu(db_session, user_id, display_mode=True)
         elif choice == "4":
+            console.print("[bold yellow]DEBUG: Assignation support choisi[/]")
             event_menu(db_session, user_id, assign_support_mode=True)
+        elif choice == "5":
+            client_menu(db_session)
         elif choice == "0":
             break
 
