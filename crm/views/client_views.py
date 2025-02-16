@@ -238,12 +238,23 @@ def client_menu(db_session, create_mode=False, update_mode=False):
 
     while True:
         clear_screen()
+        title = "👥 Menu Client 👥"
+        options = {
+            "1": "Afficher clients",
+            "2": "Ajouter client",
+            "3": "Modifier client",
+            "4": "Supprimer client",
+            "0": "Retour",
+        }
+        table = Table(title=title, box=box.ROUNDED)
+        table.add_column("[bold green]Index[/]", style="dim", width=6)
+        table.add_column("[bold green]Options[/]")
+        for key, value in options.items():
+            table.add_row(key, value)
 
-        console.print("[bold blue]👥 Menu Client 👥[/]")
+        console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
         choice = Prompt.ask(
-            "[bold cyan]1. Afficher clients | 2. Ajouter client | 3. Modifier client | 4. Supprimer "
-            "client | 0. Retour[/]",
-            choices=["1", "2", "3", "4", "0"],
+            "[bold cyan]Choisissez une option[/]", choices=[str(i) for i in options]
         )
 
         if choice == "1":
