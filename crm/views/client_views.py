@@ -110,28 +110,29 @@ def select_client(clients):
     """
     Allow a user to select client from a list
     """
-    console.clear()
-    display_client_list(clients)
-
     if not clients:
         console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
         return
 
-    index = Prompt.ask("[bold cyan][1] Sélectionnez un client[/] | [0] Retour", default="1")
-    if index == "0":
+    while True:
         console.clear()
-        return
-    try:
-        index = int(index) - 1
-        if 0 <= index < len(clients):
-            return clients[index]
-        else:
-            console.print("[bold red]❌ L'ID sélectionné est invalide[/]")
-            Prompt.ask("Appuyez sur une touche pour continuer...")
+        display_client_list(clients)
+
+        index = Prompt.ask("[bold cyan][1] Sélectionnez un client[/] | [0] Retour", default="1")
+        if index == "0":
+            console.clear()
             return None
-    except ValueError:
-        console.print("[bold red]❌ Entrée invalide[/]")
-        return None
+
+        try:
+            index = int(index) - 1
+            if 0 <= index < len(clients):
+                return clients[index]
+            else:
+                console.print("[bold red]❌ L'ID sélectionné est invalide[/]")
+                Prompt.ask("Appuyez sur une touche pour continuer...")
+        except ValueError:
+            console.print("[bold red]❌ Entrée invalide[/]")
+            return None
 
 
 def update_client(db_session):

@@ -44,6 +44,7 @@ def display_contract_list(contracts):
         )
 
     console.print(Panel(table, title="📋 Contrats", expand=False))
+    Prompt.ask("Appuyez sur une touche pour continuer...")
 
 
 def select_contract(contracts):
@@ -55,16 +56,21 @@ def select_contract(contracts):
         return None
 
     display_contract_list(contracts)
-    try:
-        index = Prompt.ask("[bold cyan]Sélectionnez un contrat[/]", default=1)
-        if 1 <= int(index) <= len(contracts):
-            return contracts[int(index) - 1]
-        else:
-            console.print("[bold red]❌ Index invalide[/]")
-            return None
-    except ValueError:
-        console.print("[bold red]❌ Entrée invalide[/]")
+    choice = Prompt.ask(
+        "[bold cyan]Que souhaitez-vous faire ? (1: Choisir un contrat à modifier | 0: Retour[/]", choices=["1", "0"])
+    if choice == "0":
         return None
+    elif choice == "1":
+        try:
+            index = Prompt.ask("[bold cyan]Sélectionnez un contrat[/]", default=1)
+            if 1 <= int(index) <= len(contracts):
+                return contracts[int(index) - 1]
+            else:
+                console.print("[bold red]❌ Index invalide[/]")
+                return None
+        except ValueError:
+            console.print("[bold red]❌ Entrée invalide[/]")
+            return None
 
 
 def create_contract(db_session):
