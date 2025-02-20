@@ -29,11 +29,11 @@ def display_menu(title, options):
     clear_screen()
 
     table = Table(title=f"[bold blue]✨{title}✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]Index[/]", style="dim", width=6)
+    table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
     table.add_column("[bold green]Description[/]")
 
-    for keys, values in options.items():
-        table.add_row(keys, values)
+    for key, value in options.items():
+        table.add_row(key, value)
 
     console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
 
@@ -52,7 +52,7 @@ def gestion_menu(db_session, user_id):
                 "2": "Gérer Contrats",
                 "3": "Afficher Événements",
                 "4": "Assigner Support",
-                "5": "Afficher Clients",
+                "5": "Gérer Clients",
                 "0": "Quitter",
             },
         )
@@ -62,10 +62,8 @@ def gestion_menu(db_session, user_id):
         elif choice == "2":
             contract_menu(db_session)
         elif choice == "3":
-            console.print("[bold yellow]DEBUG: Affichage des événements choisi[/]")
             event_menu(db_session, user_id, display_mode=True)
         elif choice == "4":
-            console.print("[bold yellow]DEBUG: Assignation support choisi[/]")
             event_menu(db_session, user_id, assign_support_mode=True)
         elif choice == "5":
             client_menu(db_session)

@@ -58,7 +58,7 @@ def create_client(db_session):
     Display a form for creating a new client
     :return: dictionary with client data
     """
-    clear_screen()
+    console.clear()
     console.print("[bold blue]➕ Création d'un nouveau client ➕[/]\n")
 
     full_name = Prompt.ask("[bold cyan]Nom complet du client[/]", default="John Doe")
@@ -110,7 +110,7 @@ def select_client(clients):
     """
     Allow a user to select client from a list
     """
-    clear_screen()
+    console.clear()
     display_client_list(clients)
 
     if not clients:
@@ -127,6 +127,7 @@ def select_client(clients):
             return clients[index]
         else:
             console.print("[bold red]❌ L'ID sélectionné est invalide[/]")
+            Prompt.ask("Appuyez sur une touche pour continuer...")
             return None
     except ValueError:
         console.print("[bold red]❌ Entrée invalide[/]")
@@ -150,7 +151,7 @@ def update_client(db_session):
     if not client:
         return
 
-    clear_screen()
+    console.clear()
     console.print("[bold blue]🔄 Modification du client : {client.full_name}🔄[/]\n")
 
     full_name = Prompt.ask(

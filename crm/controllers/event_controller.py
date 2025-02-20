@@ -86,7 +86,6 @@ class EventController:
         """
         Get all events or only events assigned to a support user
         """
-        console.print("[bold yellow]DEBUG: Récupération des événements en cours...[/]")
         events = db_session.query(Event).all()
         if support_only:
             current_user = self.get_current_user()

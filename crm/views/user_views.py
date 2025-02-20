@@ -27,7 +27,7 @@ def display_user_list(users):
     """
     console.clear()
     table = Table(title="[bold blue]✨Liste des utilisateurs✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]Index[/]", style="dim", width=6)
+    table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
     table.add_column("[bold green]ID[/]", style="dim", width=6)
     table.add_column("[bold green]Nom complet[/]")
     table.add_column("[bold green]E-mail[/]")
@@ -86,14 +86,20 @@ def create_user(db_session):
         console.print("[bold red]❌ Aucun rôle disponible pour créer un utilisateur[/]")
         return None
 
+    # display roles and ask the user to select one
     console.print("[bold blue]Liste des rôles disponibles[/]")
-    for role in roles:
-        console.print(f"[bold green]{role.role_name}[/]")
+    role_choices = {str(i + 1): role for i, role in enumerate(roles)}
+    for index, role in role_choices.items():
+        console.print(f"[bold green]{index}. {role.role_name}[/]")
 
-    role_name = Prompt.ask(
-        "[bold cyan]Rôle de l'utilisateur[/]",
-        choices=[role.role_name for role in roles],
+    # ask user to select a role
+    role_index = Prompt.ask(
+        "[bold cyan]Choisissez le rôle de l'utilisateur[/]",
+        choices=list(role_choices.keys()),
     )
+    selected_role = role_choices[role_index].role_name
+
+    # ask password
     password = Prompt.ask("[bold cyan]Mot de passe[/]", password=True)
 
     user_data = {
@@ -101,11 +107,10 @@ def create_user(db_session):
         "email": email,
         "phone_number": phone_number,
         "is_active": is_active,
-        "role_name": role_name,
+        "role_name": selected_role,
         "password": password,
     }
 
-    print("DEBUG: Données utilisateur générées :", user_data)
     return user_data
 
 
@@ -184,11 +189,10 @@ def user_menu(db_session):
     """
 
     user_controller = UserController(db_session)
-    print("DEBUG: user_controller instancié", user_controller)
     clear_screen()
     while True:
         table = Table(title="[bold blue]👩‍💼 Menu Utilisateur 👩‍💼[/]", box=box.ROUNDED)
-        table.add_column("[bold green]Index[/]", style="dim", width=6)
+        table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
         table.add_column("[bold green]Options[/]")
         options = {
             "1": "Afficher utilisateurs",
