@@ -215,7 +215,7 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
 
     while True:
         table = Table(title="[bold blue]📝 Menu Contrat 📝[/]", box=box.ROUNDED)
-        table.add_column("[bold green]Index[/]", style="dim", width=6)
+        table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
         table.add_column("[bold green]Options[/]")
         options = ["Afficher contrats", "Ajouter contrat", "Modifier contrat", "Supprimer contrat", "Retour"]
         for idx, option in enumerate(options, start=1):

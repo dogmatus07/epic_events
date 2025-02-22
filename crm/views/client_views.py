@@ -56,7 +56,9 @@ def display_client_list(clients):
 def create_client(db_session):
     """
     Display a form for creating a new client
+    :input: client data
     :return: dictionary with client data
+    :param db_session : database session
     """
     console.clear()
     console.print("[bold blue]➕ Création d'un nouveau client ➕[/]\n")

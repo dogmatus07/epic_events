@@ -33,7 +33,7 @@ def display_events_list(events):
         console.print("[bold red]❌ Aucun événement disponible[/]")
         return
     table = Table(title="[bold blue]✨Liste des événements✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]ID[/]", style="dim", width=12)
+    table.add_column("[bold green]ID[/]", style="bold magenta", width=12)
     table.add_column("[bold green]Contrat[/]")
     table.add_column("[bold green]Date de début[/]")
     table.add_column("[bold green]Date de fin[/]")
@@ -42,13 +42,13 @@ def display_events_list(events):
     table.add_column("[bold green]Contact Support[/]")
     table.add_column("[bold green]Notes[/]")
 
-    for event in events:
+    for index, event in enumerate(events, start=1):
         contract_id = event.contract.id if event.contract else "Non attribué"
         support_contact = (
             event.support_contact.username if event.support_contact else "Non attribué"
         )
         table.add_row(
-            str(event.id),
+            str(index),
             contract_id,
             event.event_date_start.strftime("%d-%m-%Y"),
             event.event_date_end.strftime("%d-%m-%Y"),
@@ -147,7 +147,7 @@ def create_event(db_session):
     return event_data
 
 
-def update_event(event, db_session):
+def update_event(event, db_session, is_support_user=False):
     """
     Display a form for updating an event
     :param event:
@@ -155,25 +155,14 @@ def update_event(event, db_session):
     :return: updated event data
     """
     console.print("[bold blue]🔄 Mise à jour de l'événement 🔄[/]\n")
-    # choose a contract
-    contracts = ContractController(db_session).get_all_contracts()
-    if not contracts:
-        console.print(
-            "[bold red]❌ Aucun contrat disponible pour créer un événement[/]"
-        )
-        return None
-    else:
-        selected_contract = select_contract(contracts)
+    console.print(f"[bold cyan]Contrat lié à l'événement du client : {event.contract.client.full_name}[/]")
 
-    # choose a support user
-    support_users = UserController(db_session).get_all_support_users()
-    if not support_users:
-        console.print(
-            "[bold red]❌ Aucun utilisateur de support disponible pour créer un événement[/]"
-        )
-        return None
-    else:
+    if not is_support_user:
+        support_users = UserController(db_session).get_all_support_users()
         selected_support = select_support_user(support_users)
+        support_id = selected_support.id if selected_support else event.support_id
+    else:
+        support_id = event.support_id
 
     event_date_start_str = Prompt.ask(
         "[bold cyan]Date de début de l'événement (DD-MM-YYYY)[/]",
@@ -198,13 +187,13 @@ def update_event(event, db_session):
     notes = Prompt.ask("[bold cyan]Notes[/]", default=event.notes)
 
     return {
-        "contract_id": selected_contract.id if selected_contract else event.contract_id,
+        "contract_id": event.contract_id,
         "event_date_start": event_date_start,
         "event_date_end": event_date_end,
         "location": location,
         "attendees": int(attendees),
         "notes": notes,
-        "support_id": selected_support.id if selected_support else event.support_id,
+        "support_id": support_id,
     }
 
 
@@ -263,9 +252,15 @@ def event_menu(
         if event_data:
             event_controller.create_event(event_data)
     elif update_event_mode:
-        events = event_controller.get_events(support_only=support_only)
+        current_user = EventController(db_session, current_user_id=user_id).get_current_user()
+        if not current_user:
+            console.print("[bold red]❌ Utilisateur non trouvé[/]")
+            Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
+            return
+        is_support_user = current_user.role.role_name.strip().lower() == "support"
+        events = event_controller.get_events(db_session, support_only=True if is_support_user else False)
         event = select_event(events)
         if event:
-            updated_data = update_event(event)
+            updated_data = update_event(event, db_session, is_support_user=is_support_user)
             if updated_data:
                 event_controller.update_event(event.id, updated_data)

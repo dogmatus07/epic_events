@@ -5,6 +5,7 @@ from rich.console import Console
 
 console = Console()
 
+
 class EventController:
     """
     Controller class for Event model.
@@ -57,12 +58,12 @@ class EventController:
             current_user = self.get_current_user()
             if not current_user:
                 return []
-            return (
-                self.db_session.query(Event)
-                .filter(Event.support_id.is_(current_user.id))
-                .all()
-            )
-        return self.db_session.query(Event).all()
+
+            events = self.db_session.query(Event).filter(Event.support_id == str(current_user.id)).all()
+            return events
+
+        events = self.db_session.query(Event).all()
+        return events
 
     def get_unassigned_events(self, db_session):
         """
@@ -86,27 +87,28 @@ class EventController:
         """
         Get all events or only events assigned to a support user
         """
-        events = db_session.query(Event).all()
+
         if support_only:
             current_user = self.get_current_user()
             if not current_user:
                 return []
+            events = self.db_session.query(Event).filter(Event.support_id == str(current_user.id)).all()
+            return events
 
-            return (
-                self.db_session.query(Event)
-                .filter(Event.support_id.is_(current_user.id))
-                .all()
-            )
+        events = db_session.query(Event).all()
         return events
 
     def get_current_user(self):
         """
         Get the current user
         """
-        if not self.current_user_id:
+        if not str(self.current_user_id):
+            console.print("[bold red]❌ Aucun utilisateur actuel trouvé[/]")
             return None
-        return (
-            self.db_session.query(User)
-            .filter(str(User.id) == self.current_user_id)
-            .first()
-        )
+
+        user = self.db_session.query(User).filter(User.id == str(self.current_user_id)).first()
+        if user:
+            return user
+        else:
+            console.print("[bold red]❌ Aucun utilisateur actuel trouvé[/]")
+        return user
