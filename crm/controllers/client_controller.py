@@ -19,8 +19,9 @@ class ClientController:
 
     def create_client(self, client_data):
         """
-        Create a new client.
+        Create a new client and assign it to the current commercial user.
         """
+
         new_client = Client(**client_data)
         self.db_session.add(new_client)
         self.db_session.commit()

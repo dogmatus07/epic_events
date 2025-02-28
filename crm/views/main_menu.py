@@ -6,7 +6,7 @@ from rich.panel import Panel
 from rich import box
 
 from crm.views.client_views import client_menu
-from crm.views.contract_views import contract_menu
+from crm.views.contract_views import contract_menu, filter_contract_menu
 from crm.views.event_views import event_menu
 from crm.views.user_views import user_menu
 
@@ -97,7 +97,7 @@ def commercial_menu(db_session, user_id):
         elif choice == "4":
             event_menu(db_session, user_id, create_event_mode=True)
         elif choice == "5":
-            contract_menu(db_session, filter_mode=True)
+            filter_contract_menu(db_session)
         elif choice == "0":
             break
 

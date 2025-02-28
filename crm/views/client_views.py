@@ -50,7 +50,6 @@ def display_client_list(clients):
         )
 
     console.print(Panel(table, title="🚀 Clients", expand=False))
-    Prompt.ask("Appuyez sur une touche pour continuer...")
 
 
 def create_client(db_session):
@@ -131,7 +130,7 @@ def select_client(clients):
                 return clients[index]
             else:
                 console.print("[bold red]❌ L'ID sélectionné est invalide[/]")
-                Prompt.ask("Appuyez sur une touche pour continuer...")
+                Prompt.ask("Appuyez sur entrée pour continuer...")
         except ValueError:
             console.print("[bold red]❌ Entrée invalide[/]")
             return None
@@ -142,6 +141,7 @@ def update_client(db_session):
     display a form for updating a client
     :param client:
     :return: updated client data
+    :param db_session: database session
     """
 
     client_controller = ClientController(db_session)

@@ -59,7 +59,7 @@ def display_events_list(events):
         )
 
     console.print(Panel(table, title="📆 Evénements", expand=False))
-    Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
+    Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer...[/]")
 
 
 def select_event(events):
@@ -68,7 +68,7 @@ def select_event(events):
     """
     if not events:
         console.print("[bold red]❌ Aucun événement disponible[/]")
-        Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
+        Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer...[/]")
         return None
 
     display_events_list(events)
@@ -255,7 +255,7 @@ def event_menu(
         current_user = EventController(db_session, current_user_id=user_id).get_current_user()
         if not current_user:
             console.print("[bold red]❌ Utilisateur non trouvé[/]")
-            Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer...[/]")
+            Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer...[/]")
             return
         is_support_user = current_user.role.role_name.strip().lower() == "support"
         events = event_controller.get_events(db_session, support_only=True if is_support_user else False)

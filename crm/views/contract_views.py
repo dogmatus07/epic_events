@@ -27,7 +27,7 @@ def display_contract_list(contracts):
     """
     console.clear()
     table = Table(title="[bold blue]✨Liste des contrats✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]Index[/]", style="dim", width=6)
+    table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
     options = ["ID Contrat", "Client", "Montant total", "Montant dû", "Signé", "Commercial"]
     for idx, option in enumerate(options, start=1):
         table.add_column(f"[bold green]{option}[/]")
@@ -37,14 +37,14 @@ def display_contract_list(contracts):
             str(idx),
             str(contract.id),
             client_name,
-            str(contract.total_amount),
-            str(contract.amount_due),
+            f"{contract.total_amount}",
+            f"{contract.amount_due}",
             "✅" if contract.signed else "❌",
             contract.commercial.full_name if contract.commercial else "Non attribué",
         )
 
     console.print(Panel(table, title="📋 Contrats", expand=False))
-    Prompt.ask("Appuyez sur une touche pour continuer...")
+    Prompt.ask("[bold cyan]Appuyez sur entrée pour retourner au menu[/]")
 
 
 def select_contract(contracts):
@@ -62,7 +62,7 @@ def select_contract(contracts):
         return None
     elif choice == "1":
         try:
-            index = Prompt.ask("[bold cyan]Sélectionnez un contrat[/]", default=1)
+            index = Prompt.ask("[bold cyan]Sélectionnez un contrat par son index[/]", default=1)
             if 1 <= int(index) <= len(contracts):
                 return contracts[int(index) - 1]
             else:
@@ -210,6 +210,7 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
     elif filter_mode:
         contracts = contract_controller.get_all_contracts()
         display_contract_list(contracts)
+        Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer[/]")
         return
     console.clear()
 
@@ -229,7 +230,7 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
         if choice == "1":
             contracts = contract_controller.get_all_contracts()
             display_contract_list(contracts)
-            Prompt.ask("[bold cyan]Appuyez sur une touche pour retourner au menu[/]")
+            Prompt.ask("[bold cyan]Appuyez sur entrée pour retourner au menu[/]")
         elif choice == "2":
             create_contract(db_session)
         elif choice == "3":
@@ -238,3 +239,49 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
             delete_contract(db_session)
         elif choice == "0":
             break
+
+
+def filter_contract_menu(db_session):
+    """
+    Display the contract menu
+    :param db_session: database session
+    """
+    console.clear()
+    contract_controller = ContractController(db_session)
+
+    while True:
+        table = Table(title="[bold blue] Menu Contrat - Filtres [/]", box=box.ROUNDED)
+        table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
+        table.add_column("[bold green]Options[/]")
+        options = [
+            "Afficher tous les contrats",
+            "Afficher les contrats non signés",
+            "Afficher les contrats non payé totalement",
+            "Afficher les contrats signés",
+            "Afficher les contrats payés totalement",
+            "Retour",
+        ]
+        for idx, option in enumerate(options, start=1):
+            table.add_row(str(idx), option)
+        console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
+        choice = Prompt.ask(
+            "[bold cyan]Choisissez une option[/]",
+            choices=["1", "2", "3", "4", "5", "0"],
+        )
+
+        if choice == "1":
+            contracts = contract_controller.get_all_contracts()
+        elif choice == "2":
+            contracts = contract_controller.filter_contract(signed=False)
+        elif choice == "3":
+            contracts = contract_controller.filter_contract(fully_paid=False)
+        elif choice == "4":
+            contracts = contract_controller.filter_contract(signed=True)
+        elif choice == "5":
+            contracts = contract_controller.filter_contract(fully_paid=True)
+        elif choice == "0":
+            break
+        else:
+            continue
+
+        display_contract_list(contracts)

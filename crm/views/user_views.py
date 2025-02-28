@@ -213,11 +213,11 @@ def user_menu(db_session):
         if choice == "1":
             users = user_controller.get_all_users()
             display_user_list(users)
-            Prompt.ask("[bold cyan]Appuyez sur une touche pour retourner au menu[/]")
+            Prompt.ask("[bold cyan]Appuyez sur entrée pour retourner au menu[/]")
         elif choice == "2":
             user_data = create_user(db_session)
             if user_data:
-                Prompt.ask("[bold cyan]Appuyez sur une touche pour continuer[/]")
+                Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer[/]")
                 created_user = user_controller.create_user(user_data)
                 if created_user:
                     print("Utilisateur ajouté avec succès !")

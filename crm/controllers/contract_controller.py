@@ -38,6 +38,20 @@ class ContractController:
 
         return contract
 
+    def filter_contract(self, signed=None, fully_paid=None):
+        """
+        Filter contracts based on the fact that they are signed or fully paid.
+        :param signed: bool | None -> True (signés), False (non signés), None (tous)
+        :param fully_paid: bool | None -> True (payés), False (non payés), None (tous)
+        """
+        query = self.db_session.query(Contract)
+        if signed is not None:
+            query = query.filter(Contract.signed if signed else not Contract.signed)
+        if fully_paid is not None:
+            query = query.filter(Contract.amount_due == 0 if fully_paid else Contract.amount_due > 0)
+
+        return query.all()
+
     def delete_contract(self, contract_id):
         """
         Delete a contract.
