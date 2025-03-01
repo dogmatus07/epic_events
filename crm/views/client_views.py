@@ -6,6 +6,7 @@ from rich.panel import Panel
 from rich import box
 from datetime import datetime
 from crm.controllers.client_controller import ClientController
+from crm.controllers.base_controller import BaseController
 
 console = Console()
 
@@ -52,15 +53,25 @@ def display_client_list(clients):
     console.print(Panel(table, title="🚀 Clients", expand=False))
 
 
-def create_client(db_session):
+def create_client(db_session, current_user_token):
     """
     Display a form for creating a new client
     :input: client data
     :return: dictionary with client data
     :param db_session : database session
+    :param current_user_token : current user token
     """
+    client_controller = ClientController(db_session)
     console.clear()
     console.print("[bold blue]➕ Création d'un nouveau client ➕[/]\n")
+
+    base_controller = BaseController(db_session, current_user_token)
+    current_user = base_controller.current_user
+
+    if not current_user or current_user.role_name.lower() != "commercial":
+        console.print("[bold red]❌ Vous devez être un commercial pour créer un client[/]")
+        Prompt.ask("Appuyez sur entrée pour continuer...")
+        return None
 
     full_name = Prompt.ask("[bold cyan]Nom complet du client[/]", default="John Doe")
     email = Prompt.ask("[bold cyan]E-mail du client[/]", default="adresse@email.com")
@@ -93,9 +104,9 @@ def create_client(db_session):
         "company_name": company_name,
         "first_contact_date": first_contact_date,
         "last_update_date": last_update_date,
+        "commercial_id": current_user.id,
     }
 
-    client_controller = ClientController(db_session)
     new_client = client_controller.create_client(client_data)
     if new_client:
         console.print("[bold green]✅ Nouveau client créé avec succès[/]")

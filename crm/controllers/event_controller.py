@@ -59,7 +59,7 @@ class EventController:
             if not current_user:
                 return []
 
-            events = self.db_session.query(Event).filter(Event.support_id == str(current_user.id)).all()
+            events = self.db_session.query(Event).filter(Event.support_id == current_user.id).all()
             return events
 
         events = self.db_session.query(Event).all()

@@ -11,20 +11,23 @@ class BaseController:
 
     def __init__(self, db_session: Session, current_user_token: str):
         self.db_session = db_session
-        self.current_user = self.get_current_user(current_user_token)
+        self.current_user_token = current_user_token
+        self.current_user = self.get_current_user()
 
     def get_current_user(self):
         """
         Get the current loged in user based on the token
         """
         try:
-            payload = jwt.decode(current_user_token, SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(self.current_user_token, SECRET_KEY, algorithms=["HS256"])
             user_id = payload.get("user_id")
             return self.db_session.query(User).get(user_id)
         except jwt.ExpiredSignatureError:
+            print("❌ Token expired")
             return None
         except jwt.InvalidTokenError:
+            print("❌ Invalid token")
             return None
         except Exception as e:
-            print(e)
+            print(f"❌ Error: {e}")
             return None

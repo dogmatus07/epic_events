@@ -8,6 +8,7 @@ from rich import box
 from crm.controllers.contract_controller import ContractController
 from crm.controllers.client_controller import ClientController
 from crm.views.client_views import select_client
+from crm.views.views import display_menu
 
 console = Console()
 
@@ -249,27 +250,20 @@ def filter_contract_menu(db_session):
     console.clear()
     contract_controller = ContractController(db_session)
 
+    options = {
+        "1": "Afficher tous les contrats",
+        "2": "Afficher les contrats non signés",
+        "3": "Afficher les contrats non payé totalement",
+        "4": "Afficher les contrats signés",
+        "5": "Afficher les contrats payés totalement",
+        "0": "Retour",
+    }
+    contracts = []
     while True:
-        table = Table(title="[bold blue] Menu Contrat - Filtres [/]", box=box.ROUNDED)
-        table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
-        table.add_column("[bold green]Options[/]")
-        options = [
-            "Afficher tous les contrats",
-            "Afficher les contrats non signés",
-            "Afficher les contrats non payé totalement",
-            "Afficher les contrats signés",
-            "Afficher les contrats payés totalement",
-            "Retour",
-        ]
-        for idx, option in enumerate(options, start=1):
-            table.add_row(str(idx), option)
-        console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
-        choice = Prompt.ask(
-            "[bold cyan]Choisissez une option[/]",
-            choices=["1", "2", "3", "4", "5", "0"],
-        )
-
-        if choice == "1":
+        choice = display_menu("Filtrer les contrats", options)
+        if choice == "0":
+            break
+        elif choice == "1":
             contracts = contract_controller.get_all_contracts()
         elif choice == "2":
             contracts = contract_controller.filter_contract(signed=False)
@@ -279,9 +273,4 @@ def filter_contract_menu(db_session):
             contracts = contract_controller.filter_contract(signed=True)
         elif choice == "5":
             contracts = contract_controller.filter_contract(fully_paid=True)
-        elif choice == "0":
-            break
-        else:
-            continue
-
         display_contract_list(contracts)

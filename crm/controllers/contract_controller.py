@@ -46,7 +46,7 @@ class ContractController:
         """
         query = self.db_session.query(Contract)
         if signed is not None:
-            query = query.filter(Contract.signed if signed else not Contract.signed)
+            query = query.filter(Contract.signed == signed)
         if fully_paid is not None:
             query = query.filter(Contract.amount_due == 0 if fully_paid else Contract.amount_due > 0)
 

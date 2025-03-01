@@ -65,7 +65,7 @@ def display_menu(title, options):
     clear_screen()
 
     table = Table(title=f"[bold blue]✨{title}✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]Index[/]", style="dim", width=6)
+    table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
     table.add_column("[bold green]Description[/]")
 
     for keys, values in options.items():
