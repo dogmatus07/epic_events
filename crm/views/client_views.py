@@ -26,7 +26,7 @@ def display_client_list(clients):
     """
     clear_screen()
     table = Table(title="[bold blue]✨Liste des clients✨[/]", box=box.ROUNDED)
-    table.add_column("[bold green]ID[/]", style="dim", width=6)
+    table.add_column("[bold green]ID[/]", style="bold magenta", width=6)
     table.add_column("[bold green]Nom complet[/]")
     table.add_column("[bold green]E-mail[/]")
     table.add_column("[bold green]Téléphone[/]")
@@ -36,7 +36,7 @@ def display_client_list(clients):
     table.add_column("[bold green]Commercial[/]")
     for index, client in enumerate(clients, start=1):
         commercial_name = (
-            client.commercial.full_name if client.commercial else "Non attribué"
+            client.commercial.username if client.commercial else "Non attribué"
         )
         table.add_row(
             str(index),
@@ -51,6 +51,7 @@ def display_client_list(clients):
         )
 
     console.print(Panel(table, title="🚀 Clients", expand=False))
+    Prompt.ask("Appuyez sur entrée pour continuer...")
 
 
 def create_client(db_session, current_user_token):
@@ -166,7 +167,7 @@ def update_client(db_session):
         return
 
     console.clear()
-    console.print("[bold blue]🔄 Modification du client : {client.full_name}🔄[/]\n")
+    console.print(f"[bold blue]🔄 Modification du client : {client.full_name}🔄[/]\n")
 
     full_name = Prompt.ask(
         "[bold cyan]Nom complet du client[/]", default=client.full_name
@@ -238,14 +239,14 @@ def delete_client(db_session):
             )
 
 
-def client_menu(db_session, create_mode=False, update_mode=False):
+def client_menu(db_session, current_user_token, create_mode=False, update_mode=False):
     """
     Display the client menu
     """
     client_controller = ClientController(db_session)
 
     if create_mode:
-        create_client(db_session)
+        create_client(db_session, current_user_token)
         return
     elif update_mode:
         update_client(db_session)
@@ -262,7 +263,7 @@ def client_menu(db_session, create_mode=False, update_mode=False):
             "0": "Retour",
         }
         table = Table(title=title, box=box.ROUNDED)
-        table.add_column("[bold green]Index[/]", style="dim", width=6)
+        table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
         table.add_column("[bold green]Options[/]")
         for key, value in options.items():
             table.add_row(key, value)

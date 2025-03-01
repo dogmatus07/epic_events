@@ -28,7 +28,7 @@ def display_user_list(users):
     console.clear()
     table = Table(title="[bold blue]✨Liste des utilisateurs✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
-    table.add_column("[bold green]ID[/]", style="dim", width=6)
+    table.add_column("[bold green]ID[/]", style="bold magenta", width=6)
     table.add_column("[bold green]Nom complet[/]")
     table.add_column("[bold green]E-mail[/]")
     table.add_column("[bold green]Téléphone[/]")

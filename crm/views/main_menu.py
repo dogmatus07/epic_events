@@ -40,7 +40,7 @@ def display_menu(title, options):
     return Prompt.ask("[bold cyan]Choisissez une option[/]", choices=options.keys())
 
 
-def gestion_menu(db_session, user_id):
+def gestion_menu(db_session, current_user_token, user_id):
     """
     Display the specific menu for role : Gestion
     """
@@ -66,12 +66,12 @@ def gestion_menu(db_session, user_id):
         elif choice == "4":
             event_menu(db_session, user_id, assign_support_mode=True)
         elif choice == "5":
-            client_menu(db_session)
+            client_menu(db_session, current_user_token)
         elif choice == "0":
             break
 
 
-def commercial_menu(db_session, user_id):
+def commercial_menu(db_session, current_user_token, user_id):
     """
     Display the specific menu for role : Commercial
     """
@@ -89,9 +89,9 @@ def commercial_menu(db_session, user_id):
         )
 
         if choice == "1":
-            client_menu(db_session, create_mode=True)
+            client_menu(db_session, current_user_token, create_mode=True)
         elif choice == "2":
-            client_menu(db_session, update_mode=True)
+            client_menu(db_session, current_user_token, update_mode=True)
         elif choice == "3":
             contract_menu(db_session, update_mode=True)
         elif choice == "4":
@@ -126,15 +126,15 @@ def support_menu(db_session, user_id):
             break
 
 
-def main_menu(role, db_session, user_id):
+def main_menu(role, db_session, current_user_token, user_id):
     """
     Display the main menu based on the user's role
     :param role: user's role
     :param db_session: database session
     """
     role_menus = {
-        "Gestion": lambda: gestion_menu(db_session, user_id),
-        "Commercial": lambda: commercial_menu(db_session, user_id),
+        "Gestion": lambda: gestion_menu(db_session, current_user_token, user_id),
+        "Commercial": lambda: commercial_menu(db_session, current_user_token, user_id),
         "Support": lambda: support_menu(db_session, user_id),
     }
 

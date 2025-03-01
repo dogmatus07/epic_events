@@ -28,4 +28,4 @@ if __name__ == "__main__":
         print(f"Connexion réussie, Rôle: {role}")
 
     # display menu according to the role
-    main_menu(role, db_session, user_id)
+    main_menu(role, db_session, token, user_id)
