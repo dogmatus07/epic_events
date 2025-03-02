@@ -52,7 +52,7 @@ def test_user(db_session):
 
 
 @pytest.fixture
-def test_client(db_session):
+def test_client(db_session, test_user):
     """
     Create a test client
     """
