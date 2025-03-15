@@ -94,8 +94,8 @@ def create_contract(db_session):
     if not client:
         return None
 
-    total_amount = Prompt.ask("[bold cyan]Montant total du contrat[/]", default=1000.0)
-    amount_due = Prompt.ask("[bold cyan]Montant dû[/]", default=1000.0)
+    total_amount = float(Prompt.ask("[bold cyan]Montant total du contrat[/]", default="1000"))
+    amount_due = float(Prompt.ask("[bold cyan]Montant dû[/]", default="1000"))
     signed = Confirm.ask("[bold cyan]Le contrat est-il signé ?[/]", default=False)
 
     contract_data = {

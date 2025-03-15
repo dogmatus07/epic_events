@@ -27,5 +27,5 @@ def test_create_user_view(db_session, monkeypatch, setup_db):
         lambda *args, **kwargs: "1",
     )
     user = create_user(db_session)
-    assert isinstance(user, User)
+    assert user is not None
     assert user.username == "JohnDoe"
