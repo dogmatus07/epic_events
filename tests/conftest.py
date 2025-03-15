@@ -1,7 +1,6 @@
 import pytest
-import sys
-import os
-from datetime import datetime, date
+import uuid
+from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from crm.db.base import Base
@@ -9,9 +8,7 @@ from crm.models.models import Role, User, Client, Contract, Event
 from auth.auth_manager import AuthManager
 from utils.password_utils import PasswordUtils
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-# Create a SQLite database in memory
+# 🔹 Create a test database in memory
 TEST_DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -20,61 +17,134 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Create a new database session for a test
+    Create a clean database for each test.
     """
     Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
 
-    # adding default roles
-    role_gestion = Role(role_name="Gestion")
-    role_commercial = Role(role_name="Commercial")
-    role_support = Role(role_name="Support")
-
-    session.add_all([role_gestion, role_commercial, role_support])
-    session.commit()
-
     yield session
-    session.rollback()
+
     session.close()
     Base.metadata.drop_all(bind=engine)
 
 
-@pytest.fixture
-def test_user(db_session):
+@pytest.fixture(scope="function")
+def setup_db(db_session):
     """
-    Create a test user with a valid role
+    Initialize the database with test data.
     """
-    role = db_session.query(Role).filter_by(role_name="Commercial").first()
-    user = User(
+
+    # 🔹 Add roles
+    roles = [
+        Role(role_name="Gestion"),
+        Role(role_name="Commercial"),
+        Role(role_name="Support"),
+    ]
+    db_session.add_all(roles)
+    db_session.commit()
+
+    # 🔹 Add commercial user
+    test_user = User(
+        id=str(uuid.uuid4()),
         username="test_user",
         email="test@example.com",
         phone_number="0102030405",
         is_active=True,
-        role_name=role.role_name,
+        role_name="Commercial",
         hashed_password=PasswordUtils.hash_password("password"),
     )
-    db_session.add(user)
+    db_session.add(test_user)
     db_session.commit()
-    db_session.refresh(user)
-    return user
+
+    # 🔹 Add support user
+    support_user = User(
+        id=str(uuid.uuid4()),
+        username="support_user",
+        email="support@epicevents.com",
+        phone_number="078976543",
+        is_active=True,
+        role_name="Support",
+        hashed_password=PasswordUtils.hash_password("supportpassword"),
+    )
+    db_session.add(support_user)
+    db_session.commit()
 
 
-@pytest.fixture
-def test_client(db_session, test_user):
-    """
-    Create a test client
-    """
-    client = Client(
+    # 🔹 Add client
+    test_client = Client(
+        id=str(uuid.uuid4()),
         full_name="John Doe",
         email="client@example.com",
         phone="0102030405",
         company_name="Client Company",
-        first_contact_date=date(2025, 1, 1),
-        last_update_date=date(2025, 2, 1),
+        first_contact_date=datetime.strptime("01-01-2025", "%d-%m-%Y").date(),
+        last_update_date=datetime.strptime("01-02-2025", "%d-%m-%Y").date(),
         commercial_id=test_user.id,
     )
-    db_session.add(client)
+    db_session.add(test_client)
     db_session.commit()
-    db_session.refresh(client)
-    return client
 
+    # 🔹 Add contract
+    test_contract = Contract(
+        id=str(uuid.uuid4()),
+        client_id=test_client.id,
+        total_amount=1000.0,
+        amount_due=500.0,
+        signed=True,
+        commercial_id=test_user.id,
+    )
+    db_session.add(test_contract)
+    db_session.commit()
+
+    # 🔹 Add event
+    test_event = Event(
+        id=str(uuid.uuid4()),
+        contract_id=test_contract.id,
+        event_date_start=datetime(2025, 1, 1, 10, 0, 0),
+        event_date_end=datetime(2025, 1, 5, 18, 0, 0),
+        location="Paris",
+        attendees=100,
+        notes="Annual meeting with NGO",
+        support_id=test_user.id,
+    )
+    db_session.add(test_event)
+    db_session.commit()
+
+    return {
+        "user": test_user,
+        "client": test_client,
+        "contract": test_contract,
+        "event": test_event,
+    }
+
+
+@pytest.fixture
+def test_user(db_session, setup_db):
+    """
+    Get the test user.
+    """
+    return setup_db["user"]
+
+
+@pytest.fixture
+def test_client(db_session, setup_db):
+    """
+    Get the test client.
+    """
+    return setup_db["client"]
+
+
+@pytest.fixture
+def test_contract(db_session, setup_db):
+    """
+    Get the test contract.
+    """
+    return setup_db["contract"]
+
+
+@pytest.fixture
+def test_event(db_session, setup_db):
+    """
+    Get the test event.
+    """
+    return setup_db["event"]

@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from crm.controllers.client_controller import ClientController
 
 
@@ -10,10 +11,10 @@ def test_create_client(db_session, test_user):
     client_data = {
         "full_name": "John Doe",
         "email": "newclient@example.com",
-        "phone": "0102030405",
+        "phone": "067890543",
         "company_name": "New Client Company",
-        "first_contact_date": "01-01-2025",
-        "last_update_date": "01-02-2025",
+        "first_contact_date": datetime.strptime("01-01-2025", "%d-%m-%Y").date(),
+        "last_update_date": datetime.strptime("03-01-2025", "%d-%m-%Y").date(),
         "commercial_id": test_user.id,
     }
     new_client = client_controller.create_client(client_data)

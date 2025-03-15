@@ -1,18 +1,19 @@
 import pytest
+from datetime import datetime
 from crm.controllers.event_controller import EventController
 
 
-def test_create_event(db_session, test_client):
+def test_create_event(db_session, test_contract):
     """
     Test create_event function
     """
     event_controller = EventController(db_session)
     event_data = {
-        "client_id": test_client.id,
-        "event_date_start": "01-01-2025",
-        "event_date_end": "05-01-2025",
+        "contract_id": test_contract.id,
+        "event_date_start": datetime.strptime("01-01-2025", "%d-%m-%Y"),
+        "event_date_end": datetime.strptime("06-01-2025", "%d-%m-%Y"),
         "location": "Paris",
-        "attendees": "100",
+        "attendees": 100,
         "notes": "Annual meeting with NGO",
         "support_id": None,
     }

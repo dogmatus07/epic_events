@@ -41,7 +41,7 @@ def display_contract_list(contracts):
             f"{contract.total_amount}",
             f"{contract.amount_due}",
             "✅" if contract.signed else "❌",
-            contract.commercial.full_name if contract.commercial else "Non attribué",
+            contract.commercial.username if contract.commercial else "Non attribué",
         )
 
     console.print(Panel(table, title="📋 Contrats", expand=False))

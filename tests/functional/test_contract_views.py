@@ -12,13 +12,18 @@ def test_create_contract_view(db_session, test_client, monkeypatch):
             "1000",
             "500",
             "y",
+            "",
         ]
     )
     monkeypatch.setattr(
         "builtins.input",
-        lambda _: next(inputs),
+        lambda *args: next(inputs),
+    )
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask",
+        lambda *args, **kwargs: "1",
     )
 
     contract = create_contract(db_session)
     assert contract is not None
-    assert contract.total_amount == 1000
+    assert contract.total_amount == 1000.0

@@ -31,7 +31,7 @@ class ClientController:
         """
         Update a client.
         """
-        client = self.db_session.query(Client).get(client_id)
+        client = self.db_session.query(Client).filter_by(id=client_id).first()
         if not client:
             return None
         for key, value in updated_data.items():
