@@ -45,7 +45,7 @@ class ClientController:
         """
         Delete a client.
         """
-        client = self.db_session.query(Client).get(client_id)
+        client = self.db_session.get(Client, client_id)
         if not client:
             return None
         self.db_session.delete(client)

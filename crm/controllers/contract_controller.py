@@ -29,7 +29,7 @@ class ContractController:
         """
         Update a contract.
         """
-        contract = self.db_session.query(Contract).get(contract_id)
+        contract = self.db_session.get(Contract, contract_id)
         if not contract:
             return None
         for key, value in updated_data.items():
@@ -56,7 +56,7 @@ class ContractController:
         """
         Delete a contract.
         """
-        contract = self.db_session.query(Contract).get(contract_id)
+        contract = self.db_session.get(Contract, contract_id)
         if not contract:
             return None
         self.db_session.delete(contract)

@@ -28,7 +28,7 @@ class EventController:
         """
         Update an event.
         """
-        event = self.db_session.query(Event).get(event_id)
+        event = self.db_session.get(Event, event_id)
         if not event:
             return None
         for key, value in updated_data.items():
@@ -41,7 +41,7 @@ class EventController:
         """
         Delete an event.
         """
-        event = self.db_session.query(Event).get(event_id)
+        event = self.db_session.get(Event, event_id)
         if not event:
             return None
         self.db_session.delete(event)

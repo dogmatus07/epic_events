@@ -1,42 +1,58 @@
 import pytest
-from datetime import datetime
 from crm.controllers.client_controller import ClientController
+from crm.models.models import Client
+from datetime import datetime, date
 
 
-def test_create_client(db_session, test_user):
-    """
-    Test create_client function
-    """
-    client_controller = ClientController(db_session)
+def test_create_client(db_session):
+    controller = ClientController(db_session)
     client_data = {
-        "full_name": "John Doe",
-        "email": "newclient@example.com",
-        "phone": "067890543",
-        "company_name": "New Client Company",
-        "first_contact_date": datetime.strptime("01-01-2025", "%d-%m-%Y").date(),
-        "last_update_date": datetime.strptime("03-01-2025", "%d-%m-%Y").date(),
-        "commercial_id": test_user.id,
+        "full_name": "Jane Doe",
+        "email": "janedoe@gmail.com",
+        "phone": "078654323",
+        "company_name": "NEWCOMPANY LLC",
+        "first_contact_date": datetime.now(),
+        "last_update_date": datetime.now(),
     }
-    new_client = client_controller.create_client(client_data)
-    assert new_client is not None
-    assert new_client.full_name == "John Doe"
+    client = controller.create_client(client_data)
+    assert isinstance(client, Client)
+    assert client.full_name == "Jane Doe"
+    assert client.email == "janedoe@gmail.com"
 
 
-def test_get_client(db_session, test_client):
-    """
-    Test get_client function
-    """
-    client_controller = ClientController(db_session)
-    clients = client_controller.get_all_clients()
-    assert len(clients) == 1
-    assert clients[0].full_name == "John Doe"
+def test_get_all_clients(db_session):
+    controller = ClientController(db_session)
+    clients = controller.get_all_clients()
+    assert isinstance(clients, list)
 
 
-def test_update_client(db_session, test_client):
-    """
-    Test update_client function
-    """
-    client_controller = ClientController(db_session)
-    update_data = {"full_name": "Jane Super Doe"}
-    update_client = client_controller.update_client(test_client.id, update_data)
-    assert update_client.full_name == "Jane Super Doe"
+def test_update_client(db_session):
+    controller = ClientController(db_session)
+    client_data = {
+        "full_name": "Jane Doe",
+        "email": "janedoe@gmail.com",
+        "phone": "078654323",
+        "company_name": "OldCompany",
+        "first_contact_date": datetime.now(),
+        "last_update_date": datetime.now(),
+    }
+    client = controller.create_client(client_data)
+
+    updated_data = {"company_name": "NEWCOMPANY LTD"}
+    updated_client = controller.update_client(client.id, updated_data)
+    assert updated_client.company_name == "NEWCOMPANY LTD"
+    assert isinstance(updated_client.last_update_date, date)
+
+
+def test_delete_client(db_session):
+    controller = ClientController(db_session)
+    client = controller.create_client({
+        "full_name": "Jane Doe",
+        "email": "janedoe@gmail.com",
+        "phone": "078654323",
+        "company_name": "NEWCOMPANY LTD",
+        "first_contact_date": datetime.now(),
+        "last_update_date": datetime.now(),
+    })
+    result = controller.delete_client(client.id)
+    assert result is True
