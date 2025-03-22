@@ -34,7 +34,7 @@ class RoleController:
         """
         Delete a role.
         """
-        role = self.db_session.query(Role).get(role_id)
+        role = self.db_session.get(Role, role_id)
         if not role:
             return None
         self.db_session.delete(role)

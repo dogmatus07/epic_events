@@ -78,10 +78,12 @@ class EventController:
         :param event_id: int, event id
         :param support_id: int, support user id
         """
-        event = self.db_session.query(Event).get(event_id)
+        event = self.db_session.get(Event, event_id)
         if event:
             event.support_id = support_id
             self.db_session.commit()
+            return event
+        return None
 
     def get_events(self, db_session, support_only=False):
         """
