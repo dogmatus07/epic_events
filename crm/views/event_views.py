@@ -116,11 +116,11 @@ def create_event(db_session):
 
     event_date_start_str = Prompt.ask(
         "[bold cyan]Date de début de l'événement (DD-MM-YYYY)[/]",
-        default=datetime.now().date(),
+        default=datetime.now().strftime("%d-%m-%Y"),
     )
     event_date_end_str = Prompt.ask(
         "[bold cyan]Date de fin de l'événement (DD-MM-YYYY)[/]",
-        default=datetime.now().date(),
+        default=datetime.now().strftime("%d-%m-%Y"),
     )
     try:
         event_date_start_str = datetime.strptime(
