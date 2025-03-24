@@ -16,12 +16,12 @@ class BaseController:
 
     def get_current_user(self):
         """
-        Get the current loged in user based on the token
+        Get the current logged in user based on the token
         """
         try:
             payload = jwt.decode(self.current_user_token, SECRET_KEY, algorithms=["HS256"])
             user_id = payload.get("user_id")
-            return self.db_session.query(User).get(user_id)
+            return self.db_session.get(User, user_id)
         except jwt.ExpiredSignatureError:
             print("❌ Token expired")
             return None

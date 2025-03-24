@@ -51,7 +51,7 @@ class UserController:
         """
         Update a user.
         """
-        user = self.db_session.query(User).get(user_id)
+        user = self.db_session.get(User, user_id)
         if not user:
             return None
 
@@ -70,7 +70,7 @@ class UserController:
         """
         Delete a user.
         """
-        user = self.db_session.query(User).get(user_id)
+        user = self.db_session.get(User, user_id)
         if not user:
             return False
         self.db_session.delete(user)
@@ -87,4 +87,4 @@ class UserController:
         """
         Get all commercial users from the database.
         """
-        return self.db_session.query(User).filter(User.role_name == "Commercial")
+        return self.db_session.query(User).filter(User.role_name == "Commercial").all()

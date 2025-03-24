@@ -8,6 +8,7 @@ from crm.models.models import Role, User, Client, Contract, Event
 from auth.auth_manager import AuthManager
 from utils.password_utils import PasswordUtils
 
+
 # 🔹 Create a test database in memory
 TEST_DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})

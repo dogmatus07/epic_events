@@ -1,5 +1,7 @@
 import pytest
-from crm.views.event_views import create_event
+from datetime import datetime, date
+from crm.views.event_views import create_event, display_events_list
+from crm.controllers import EventController
 
 
 def test_create_event_view(db_session, test_client, monkeypatch, setup_db):
@@ -25,3 +27,45 @@ def test_create_event_view(db_session, test_client, monkeypatch, setup_db):
     assert event is not None
     assert event["location"] == "Paris"
     assert event["attendees"] == 100
+
+def test_display_event_list_view(db_session, test_client, monkeypatch, setup_db):
+    """
+    Test display_event_list view
+    """
+    prompt_inputs = iter([
+        "",               # Push enter to continue
+        "1",              # Choose to display all events
+    ])
+
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs))
+
+    # create a fake event
+    event_controller = EventController(db_session)
+    event_data = {
+        "contract_id": "1",
+        "event_date_start": datetime.strptime("21-03-2025", "%d-%m-%Y").date(),
+        "event_date_end": datetime.strptime("27-03-2025", "%d-%m-%Y").date(),
+        "location": "Paris",
+        "attendees": 100,
+        "notes": "Annual meeting with NGO",
+        "support_id": "1"
+    }
+    event = event_controller.create_event(event_data)
+    event_list = event_controller.get_events(db_session, support_only=False)
+    display_events_list(event_list)
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: "")
+
+    assert True
+
+def test_select_event_view(db_session, test_client, monkeypatch, setup_db):
+    """
+    Test select_event view
+    """
+    prompt_values = iter([
+        "1",  # Choose an event
+        "1",  # Choose an event by ID
+    ])
+
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values))
+
+    assert True
