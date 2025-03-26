@@ -1,7 +1,10 @@
 import pytest
+import uuid
 from datetime import datetime, date
-from crm.views.event_views import create_event, display_events_list
+from crm.views.event_views import create_event, display_events_list, update_event
+from crm.views import event_views
 from crm.controllers import EventController
+from crm.models.models import Role
 
 
 def test_create_event_view(db_session, test_client, monkeypatch, setup_db):
@@ -69,3 +72,44 @@ def test_select_event_view(db_session, test_client, monkeypatch, setup_db):
     monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values))
 
     assert True
+
+def test_update_event_view(db_session, test_client, monkeypatch, setup_db):
+    """
+    Test update_event view
+    input: event, db_session, is_support_user=False
+    output: updated event data
+    """
+
+    # create a fake event for the test
+    event_controller = EventController(db_session)
+
+    event_data = {
+        "contract_id": setup_db["contract"].id,
+        "event_date_start": datetime.strptime("21-03-2025", "%d-%m-%Y").date(),
+        "event_date_end": datetime.strptime("27-03-2025", "%d-%m-%Y").date(),
+        "location": "Paris",
+        "attendees": 100,
+        "notes": "Annual meeting with NGO",
+        "support_id": setup_db["user"].id
+    }
+
+    event = event_controller.create_event(event_data)
+
+    # Update Phase
+    prompt_inputs_update = iter([
+        "01-05-2025",     # Date start
+        "06-05-2025",     # Date end
+        "Nancy",          # Location
+        "130",            # attendees
+        "Annual meeting with NGO",  # Notes
+    ])
+
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs_update))
+    monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: True)
+
+
+    updated_data = update_event(event, db_session, is_support_user=True)
+
+    assert updated_data is not None
+    assert updated_data["location"] == "Nancy"
+    assert updated_data["attendees"] == 130

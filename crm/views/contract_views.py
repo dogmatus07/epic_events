@@ -45,7 +45,7 @@ def display_contract_list(contracts):
         )
 
     console.print(Panel(table, title="📋 Contrats", expand=False))
-    Prompt.ask("[bold cyan]Appuyez sur entrée pour retourner au menu[/]")
+    Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer[/]")
 
 
 def select_contract(contracts):
