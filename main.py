@@ -1,8 +1,15 @@
+from rich.console import Console
 from crm.views.views import authenticate_user
 from crm.views.main_menu import main_menu
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
 from crm.db.session import get_db_session
+from crm.utils.sentry import init_sentry
+from sentry_sdk import capture_exception
+
+console = Console()
+
+init_sentry()
 
 db_session = get_db_session()
 
@@ -28,4 +35,10 @@ if __name__ == "__main__":
         print(f"Connexion réussie, Rôle: {role}")
 
     # display menu according to the role
-    main_menu(role, db_session, token, user_id)
+    try:
+        console.clear()
+        main_menu(role, db_session, token, user_id)
+    except Exception as e:
+        capture_exception(e)
+        print("Une erreur s'est produite, veuillez réessayer")
+        exit()

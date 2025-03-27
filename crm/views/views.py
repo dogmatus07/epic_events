@@ -7,10 +7,11 @@ from rich import box
 from rich.prompt import Prompt
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
+from sentry_sdk import capture_exception
 
 console = Console()
 
-LOGO = """[bold blue]
+LOGO = r"""[bold blue]
 
  __ __   __   __     __    ___ __   __ __      
 |_ |__)|/    |_ \  /|_ |\ | | (_   /  |__)|\/| 
@@ -44,15 +45,21 @@ def authenticate_user():
             box=DOUBLE,
         )
     )
-    email = Prompt.ask("Email")
-    password = Prompt.ask("Mot de passe", password=True)
 
-    token = auth_manager.authenticate(email, password)
-    if token:
-        console.print("Authentification réussie", style="bold green")
-        return token
-    else:
-        console.print("Authentification échouée, veuillez réessayer", style="bold red")
+    try:
+        email = Prompt.ask("Email")
+        password = Prompt.ask("Mot de passe", password=True)
+
+        token = auth_manager.authenticate(email, password)
+        if token:
+            console.print("Authentification réussie", style="bold green")
+            return token
+        else:
+            console.print("Authentification échouée, veuillez réessayer", style="bold red")
+            return None
+    except Exception as e:
+        capture_exception(e)
+        console.print("Une erreur s'est produite, veuillez réessayer", style="bold red")
         return None
 
 
@@ -68,9 +75,14 @@ def display_menu(title, options):
     table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
     table.add_column("[bold green]Description[/]")
 
-    for keys, values in options.items():
-        table.add_row(keys, values)
+    try:
+        for keys, values in options.items():
+            table.add_row(keys, values)
 
-    console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
-    choice = Prompt.ask("[bold cyan]Choisissez une option[/]", choices=options.keys())
-    return str(choice)
+        console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
+        choice = Prompt.ask("[bold cyan]Choisissez une option[/]", choices=options.keys())
+        return str(choice)
+    except Exception as e:
+        capture_exception(e)
+        console.print("Une erreur s'est produite, veuillez réessayer", style="bold red")
+        return None
