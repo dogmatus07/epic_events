@@ -7,7 +7,7 @@ from rich import box
 from rich.prompt import Prompt
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
-from sentry_sdk import capture_exception
+from sentry_sdk import capture_exception, capture_message
 
 console = Console()
 
@@ -45,7 +45,6 @@ def authenticate_user():
             box=DOUBLE,
         )
     )
-
     try:
         email = Prompt.ask("Email")
         password = Prompt.ask("Mot de passe", password=True)
@@ -55,11 +54,12 @@ def authenticate_user():
             console.print("Authentification réussie", style="bold green")
             return token
         else:
+            capture_message("Authentification échouée pour l'utilisateur : " + email, level="warning")
             console.print("Authentification échouée, veuillez réessayer", style="bold red")
             return None
-    except Exception as e:
-        capture_exception(e)
-        console.print("Une erreur s'est produite, veuillez réessayer", style="bold red")
+    except Exception as auth_error:
+        capture_exception(auth_error)
+        console.print("Erreur d'authentification", style="bold red")
         return None
 
 

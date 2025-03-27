@@ -11,7 +11,12 @@ console = Console()
 
 init_sentry()
 
-db_session = get_db_session()
+try:
+    db_session = get_db_session()
+except Exception as (e):
+    capture_exception(e)
+    print("Erreur de connexion à la base de données")
+    exit()
 
 if __name__ == "__main__":
     token = None
