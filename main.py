@@ -13,7 +13,7 @@ init_sentry()
 
 try:
     db_session = get_db_session()
-except Exception as (e):
+except Exception as e:
     capture_exception(e)
     print("Erreur de connexion à la base de données")
     exit()

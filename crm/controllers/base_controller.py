@@ -2,6 +2,10 @@ import jwt
 from crm.models.models import User
 from sqlalchemy.orm import Session
 from auth.auth_manager import SECRET_KEY
+from sentry_sdk import capture_exception
+from rich.console import Console
+
+console = Console()
 
 
 class BaseController:
@@ -22,12 +26,15 @@ class BaseController:
             payload = jwt.decode(self.current_user_token, SECRET_KEY, algorithms=["HS256"])
             user_id = payload.get("user_id")
             return self.db_session.get(User, user_id)
-        except jwt.ExpiredSignatureError:
-            print("❌ Token expired")
+        except jwt.ExpiredSignatureError as e:
+            capture_exception(e)
+            console.print("❌ Token expired")
             return None
-        except jwt.InvalidTokenError:
-            print("❌ Invalid token")
+        except jwt.InvalidTokenError as e:
+            capture_exception(e)
+            console.print("❌ Invalid token")
             return None
         except Exception as e:
-            print(f"❌ Error: {e}")
+            capture_exception(e)
+            console.print("❌ Error getting current user")
             return None

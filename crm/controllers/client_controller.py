@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
 from crm.models.models import Client
 from datetime import datetime
+from sentry_sdk import capture_exception
+from rich.console import Console
 
+console = Console()
 
 class ClientController:
     """
@@ -21,33 +24,47 @@ class ClientController:
         """
         Create a new client and assign it to the current commercial user.
         """
-
-        new_client = Client(**client_data)
-        self.db_session.add(new_client)
-        self.db_session.commit()
-        return new_client
+        try:
+            new_client = Client(**client_data)
+            self.db_session.add(new_client)
+            self.db_session.commit()
+            return new_client
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la création du client")
+            return None
 
     def update_client(self, client_id, updated_data):
         """
         Update a client.
         """
-        client = self.db_session.query(Client).filter_by(id=client_id).first()
-        if not client:
+        try:
+            client = self.db_session.query(Client).filter_by(id=client_id).first()
+            if not client:
+                return None
+            for key, value in updated_data.items():
+                setattr(client, key, value)
+            client.last_update_date = datetime.now()
+            self.db_session.commit()
+            return client
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la mise à jour du client")
             return None
-        for key, value in updated_data.items():
-            setattr(client, key, value)
-        client.last_update_date = datetime.now()
-        self.db_session.commit()
 
-        return client
 
     def delete_client(self, client_id):
         """
         Delete a client.
         """
-        client = self.db_session.get(Client, client_id)
-        if not client:
+        try:
+            client = self.db_session.get(Client, client_id)
+            if not client:
+                return None
+            self.db_session.delete(client)
+            self.db_session.commit()
+            return True
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la suppression du client")
             return None
-        self.db_session.delete(client)
-        self.db_session.commit()
-        return True
