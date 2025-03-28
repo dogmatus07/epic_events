@@ -5,8 +5,8 @@ from auth.auth_manager import SECRET_KEY
 from sentry_sdk import capture_exception
 from rich.console import Console
 
-console = Console()
 
+console = Console()
 
 class BaseController:
     """

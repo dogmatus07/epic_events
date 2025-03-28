@@ -1,23 +1,18 @@
-import os
-import uuid
 from rich.console import Console
+from crm.views.views import clear_console
 from rich.table import Table
 from rich.prompt import Prompt, Confirm
 from rich.panel import Panel
 from rich import box
+from sentry_sdk import capture_exception
+
 from crm.controllers.contract_controller import ContractController
 from crm.controllers.client_controller import ClientController
 from crm.views.client_views import select_client
 from crm.views.views import display_menu
+from crm.utils.console import clear_console
 
 console = Console()
-
-
-def clear_screen():
-    """
-    Clear the screen
-    """
-    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_contract_list(contracts):
@@ -26,7 +21,7 @@ def display_contract_list(contracts):
     :param contracts:
     :return: list of contracts
     """
-    console.clear()
+    clear_console()
     table = Table(title="[bold blue]✨Liste des contrats✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
     options = ["ID Contrat", "Client", "Montant total", "Montant dû", "Signé", "Commercial"]
@@ -69,7 +64,8 @@ def select_contract(contracts):
             else:
                 console.print("[bold red]❌ Index invalide[/]")
                 return None
-        except ValueError:
+        except ValueError as e:
+            capture_exception(e)
             console.print("[bold red]❌ Entrée invalide[/]")
             return None
 
@@ -81,12 +77,16 @@ def create_contract(db_session):
     """
     console.print("[bold blue]➕ Création d'un nouveau contrat ➕[/]\n")
     # display the list of clients
-    client_controller = ClientController(db_session)
-    clients = client_controller.get_all_clients()
-    console.clear()
+    try:
+        client_controller = ClientController(db_session)
+        clients = client_controller.get_all_clients()
 
-    if not clients:
-        console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
+        if not clients:
+            console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
+            return None
+    except Exception as e:
+        capture_exception(e)
+        console.print("[bold red]❌ Une erreur s'est produite lors de la récupération des clients[/]")
         return None
 
     # select a client
@@ -94,27 +94,32 @@ def create_contract(db_session):
     if not client:
         return None
 
-    total_amount = float(Prompt.ask("[bold cyan]Montant total du contrat[/]", default="1000"))
-    amount_due = float(Prompt.ask("[bold cyan]Montant dû[/]", default="1000"))
-    signed = Confirm.ask("[bold cyan]Le contrat est-il signé ?[/]", default=False)
+    try:
+        total_amount = float(Prompt.ask("[bold cyan]Montant total du contrat[/]", default="1000"))
+        amount_due = float(Prompt.ask("[bold cyan]Montant dû[/]", default="1000"))
+        signed = Confirm.ask("[bold cyan]Le contrat est-il signé ?[/]", default=False)
 
-    contract_data = {
-        "client_id": client.id,
-        "total_amount": total_amount,
-        "amount_due": amount_due,
-        "signed": signed,
-    }
+        contract_data = {
+            "client_id": client.id,
+            "total_amount": total_amount,
+            "amount_due": amount_due,
+            "signed": signed,
+        }
 
-    contract_controller = ContractController(db_session)
-    created_contract = contract_controller.create_contract(contract_data)
+        contract_controller = ContractController(db_session)
+        created_contract = contract_controller.create_contract(contract_data)
 
-    if created_contract:
-        console.print("[bold green]✅ Nouveau contrat créé avec succès[/]")
-        return created_contract
-    else:
-        console.print(
-            "[bold red]❌ Une erreur s'est produite lors de la création du contrat[/]"
-        )
+        if created_contract:
+            console.print("[bold green]✅ Nouveau contrat créé avec succès[/]")
+            return created_contract
+        else:
+            console.print(
+                "[bold red]❌ Une erreur s'est produite lors de la création du contrat[/]"
+            )
+            return None
+    except Exception as e:
+        capture_exception(e)
+        console.print("[bold red]❌ Une erreur s'est produite lors de la création du contrat[/]")
         return None
 
 
@@ -125,11 +130,16 @@ def update_contract(db_session):
     :return: updated contract data
     """
     console.print("[bold blue]🔄 Mise à jour du contrat 🔄[/]\n")
-    contact_controller = ContractController(db_session)
-    contracts = contact_controller.get_all_contracts()
+    try:
+        contact_controller = ContractController(db_session)
+        contracts = contact_controller.get_all_contracts()
 
-    if not contracts:
-        console.print("[bold red]❌ Aucun contrat disponible pour créer un contrat[/]")
+        if not contracts:
+            console.print("[bold red]❌ Aucun contrat disponible pour créer un contrat[/]")
+            return None
+    except Exception as e:
+        capture_exception(e)
+        console.print("[bold red]❌ Une erreur s'est produite lors de la récupération des contrats[/]")
         return None
 
     # Select a contract to update
@@ -137,28 +147,33 @@ def update_contract(db_session):
     if not contract:
         return None
 
-    total_amount = Prompt.ask(
-        "[bold cyan]Montant total du contrat[/]", default=contract.total_amount
-    )
-    amount_due = Prompt.ask("[bold cyan]Montant dû[/]", default=contract.amount_due)
-    signed = Confirm.ask(
-        "[bold cyan]Le contrat est-il signé ?[/]", default=contract.signed
-    )
-
-    updated_data = {
-        "total_amount": total_amount,
-        "amount_due": amount_due,
-        "signed": signed,
-    }
-
-    updated_contract = contact_controller.update_contract(contract.id, updated_data)
-    if updated_contract:
-        console.print("[bold green]✅ Contrat mis à jour avec succès[/]")
-        return updated_contract
-    else:
-        console.print(
-            "[bold red]❌ Une erreur s'est produite lors de la mise à jour du contrat[/]"
+    try:
+        total_amount = Prompt.ask(
+            "[bold cyan]Montant total du contrat[/]", default=contract.total_amount
         )
+        amount_due = Prompt.ask("[bold cyan]Montant dû[/]", default=contract.amount_due)
+        signed = Confirm.ask(
+            "[bold cyan]Le contrat est-il signé ?[/]", default=contract.signed
+        )
+
+        updated_data = {
+            "total_amount": total_amount,
+            "amount_due": amount_due,
+            "signed": signed,
+        }
+
+        updated_contract = contact_controller.update_contract(contract.id, updated_data)
+        if updated_contract:
+            console.print("[bold green]✅ Contrat mis à jour avec succès[/]")
+            return updated_contract
+        else:
+            console.print(
+                "[bold red]❌ Une erreur s'est produite lors de la mise à jour du contrat[/]"
+            )
+            return None
+    except Exception as e:
+        capture_exception(e)
+        console.print("[bold red]❌ Une erreur s'est produite lors de la mise à jour du contrat[/]")
         return None
 
 
@@ -168,13 +183,19 @@ def delete_contract(db_session):
     :return: boolean
     """
     console.print("[bold blue]⚠️ Suppression d'un contrat [/]\n")
-    contract_controller = ContractController(db_session)
-    contracts = contract_controller.get_all_contracts()
 
-    if not contracts:
-        console.print(
-            "[bold red]❌ Aucun contrat disponible pour supprimer un contrat[/]"
-        )
+    try:
+        contract_controller = ContractController(db_session)
+        contracts = contract_controller.get_all_contracts()
+
+        if not contracts:
+            console.print(
+                "[bold red]❌ Aucun contrat disponible pour supprimer un contrat[/]"
+            )
+            return
+    except Exception as e:
+        capture_exception(e)
+        console.print("[bold red]❌ Une erreur s'est produite lors de la récupération des contrats[/]")
         return
 
     # select a contract to delete
@@ -187,13 +208,17 @@ def delete_contract(db_session):
         default=False,
     )
     if confirm:
-        success = contract_controller.delete_contract(contract.id)
-        if success:
-            console.print("[bold green]✅ Contrat supprimé avec succès[/]")
-        else:
-            console.print(
-                "[bold red]❌ Une erreur s'est produite lors de la suppression du contrat[/]"
-            )
+        try:
+            success = contract_controller.delete_contract(contract.id)
+            if success:
+                console.print("[bold green]✅ Contrat supprimé avec succès[/]")
+            else:
+                console.print(
+                    "[bold red]❌ Une erreur s'est produite lors de la suppression du contrat[/]"
+                )
+        except Exception as e:
+            capture_exception(e)
+            console.print("[bold red]❌ Erreur inattendue lors de la suppression du contrat[/]")
 
 
 def contract_menu(db_session, update_mode=False, filter_mode=False):
@@ -213,7 +238,7 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
         display_contract_list(contracts)
         Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer[/]")
         return
-    console.clear()
+    clear_console()
 
     while True:
         table = Table(title="[bold blue]📝 Menu Contrat 📝[/]", box=box.ROUNDED)
@@ -247,7 +272,7 @@ def filter_contract_menu(db_session):
     Display the contract menu
     :param db_session: database session
     """
-    console.clear()
+    clear_console()
     contract_controller = ContractController(db_session)
 
     options = {

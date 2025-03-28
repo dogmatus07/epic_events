@@ -2,10 +2,10 @@ from sqlalchemy.orm import Session
 from crm.models.models import Event, User
 from rich.console import Console
 from sentry_sdk import capture_exception
+from sqlalchemy.exc import SQLAlchemyError
 
 
 console = Console()
-
 
 class EventController:
     """
@@ -137,13 +137,18 @@ class EventController:
         """
         Get the current user
         """
-        if not str(self.current_user_id):
-            console.print("[bold red]❌ Aucun utilisateur actuel trouvé[/]")
-            return None
+        try:
+            if not str(self.current_user_id):
+                console.print("[bold red]❌ Aucun utilisateur actuel trouvé[/]")
+                return None
 
-        user = self.db_session.query(User).filter(User.id == str(self.current_user_id)).first()
-        if user:
+            user = self.db_session.query(User).filter(User.id == str(self.current_user_id)).first()
+            if user:
+                return user
+            else:
+                console.print("[bold red]❌ Aucun utilisateur actuel trouvé[/]")
             return user
-        else:
-            console.print("[bold red]❌ Aucun utilisateur actuel trouvé[/]")
-        return user
+        except SQLAlchemyError as e:
+            capture_exception(e)
+            console.print("Erreur lors de la récupération de l'utilisateur actuel")
+            return None

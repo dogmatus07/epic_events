@@ -4,12 +4,14 @@ from datetime import datetime
 from sentry_sdk import capture_exception
 from rich.console import Console
 
+
 console = Console()
 
 class ClientController:
     """
     Controller class for Client model.
     """
+
 
     def __init__(self, db_session: Session):
         self.db_session = db_session
@@ -18,7 +20,12 @@ class ClientController:
         """
         Get all clients from the database.
         """
-        return self.db_session.query(Client).all()
+        try:
+            return self.db_session.query(Client).all()
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la récupération des clients")
+            return None
 
     def create_client(self, client_data):
         """

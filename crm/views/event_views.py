@@ -6,21 +6,16 @@ from rich.prompt import Prompt, Confirm
 from rich import box
 from datetime import datetime
 
+from sentry_sdk import capture_exception
+
 from crm.controllers.event_controller import EventController
 from crm.controllers.contract_controller import ContractController
 from crm.controllers.user_controller import UserController
 from crm.views.contract_views import select_contract
 from crm.views.user_views import select_user, select_support_user
-
+from crm.utils.console import clear_console
 
 console = Console()
-
-
-def clear_screen():
-    """
-    Clear the screen
-    """
-    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_events_list(events):
@@ -92,11 +87,17 @@ def create_event(db_session):
     """
     console.print("[bold blue]➕ Création d'un nouvel événement ➕[/]\n")
 
-    contracts = ContractController(db_session).get_all_contracts()
-    selected_contract = select_contract(contracts)
-    if not selected_contract:
+    try:
+        contracts = ContractController(db_session).get_all_contracts()
+        selected_contract = select_contract(contracts)
+        if not selected_contract:
+            console.print(
+                "[bold red]❌ Aucun contrat sélectionné pour créer un événement[/]"
+            )
+            return None
+    except Exception as e:
         console.print(
-            "[bold red]❌ Aucun contrat sélectionné pour créer un événement[/]"
+            "[bold red]❌ Erreur lors de la récupération des contrats :[/]", e
         )
         return None
 
@@ -127,24 +128,30 @@ def create_event(db_session):
             event_date_start_str, "%d-%m-%Y"
         ).date()
         event_date_end_str = datetime.strptime(event_date_end_str, "%d-%m-%Y").date()
-    except ValueError:
+    except ValueError as e:
+        capture_exception(e)
         console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
         return None
 
-    location = Prompt.ask("[bold cyan]Lieu de l'événement[/]", default="Paris")
-    attendees = Prompt.ask("[bold cyan]Nombre de participants[/]", default=10)
-    notes = Prompt.ask("[bold cyan]Notes[/]", default="")
+    try:
+        location = Prompt.ask("[bold cyan]Lieu de l'événement[/]", default="Paris")
+        attendees = Prompt.ask("[bold cyan]Nombre de participants[/]", default=10)
+        notes = Prompt.ask("[bold cyan]Notes[/]", default="")
 
-    event_data = {
-        "contract_id": selected_contract.id,
-        "event_date_start": event_date_start_str,
-        "event_date_end": event_date_end_str,
-        "location": location,
-        "attendees": int(attendees),
-        "notes": notes,
-        "support_id": selected_support.id,
-    }
-    return event_data
+        event_data = {
+            "contract_id": selected_contract.id,
+            "event_date_start": event_date_start_str,
+            "event_date_end": event_date_end_str,
+            "location": location,
+            "attendees": int(attendees),
+            "notes": notes,
+            "support_id": selected_support.id,
+        }
+        return event_data
+    except Exception as e:
+        capture_exception(e)
+        console.print("[bold red]❌ Erreur lors de la création de l'événement :[/]", e)
+        return None
 
 
 def update_event(event, db_session, is_support_user=False):
@@ -176,7 +183,8 @@ def update_event(event, db_session, is_support_user=False):
     try:
         event_date_start = datetime.strptime(event_date_start_str, "%d-%m-%Y").date()
         event_date_end = datetime.strptime(event_date_end_str, "%d-%m-%Y").date()
-    except ValueError:
+    except ValueError as e:
+        capture_exception(e)
         console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
         return None
 
@@ -230,7 +238,7 @@ def event_menu(
     :param display_mode: display all events
     :param user_id: user id
     """
-    console.clear()
+    clear_console()
     event_controller = EventController(db_session, current_user_id=user_id)
 
     if filter_mode:

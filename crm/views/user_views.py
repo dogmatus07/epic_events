@@ -7,16 +7,9 @@ from rich.prompt import Prompt, Confirm
 
 from crm.controllers.role_controller import RoleController
 from crm.controllers.user_controller import UserController
-
+from crm.utils.console import clear_console
 
 console = Console()
-
-
-def clear_screen():
-    """
-    Clear the screen
-    """
-    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_user_list(users):
@@ -25,7 +18,7 @@ def display_user_list(users):
     :param users:
     :return: list of users
     """
-    console.clear()
+    clear_console()
     table = Table(title="[bold blue]✨Liste des utilisateurs✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
     table.add_column("[bold green]ID[/]", style="bold magenta", width=6)
@@ -54,6 +47,7 @@ def select_user(users, default_id=None):
     """
     Display a list of users and ask the user to select one
     """
+    clear_console()
     if not users:
         console.print("[bold red]❌ Aucun utilisateur disponible[/]")
         return None
@@ -71,7 +65,7 @@ def create_user(db_session):
     Display a form for creating a new user
     :return: dictionary with user data
     """
-    console.clear()
+    clear_console()
     console.print("[bold blue]➕ Création d'un nouvel utilisateur ➕[/]\n")
     username = Prompt.ask("[bold cyan]Nom d'utilisateur[/]", default="john_doe")
     email = Prompt.ask(
@@ -121,6 +115,7 @@ def update_user(user, db_session):
     :param db_session:
     :return: updated user data
     """
+    clear_console()
     console.print(
         f"[bold blue]🔄 Modification de l'utilisateur : {user.username}🔄[/]\n"
     )
@@ -174,6 +169,7 @@ def delete_user(user):
     :param user:
     :return: None
     """
+    clear_console()
     console.print(
         f"[bold red]⚠️ Suppression de l'utilisateur : {user.id} - {user.username} - {user.email}[/]"
     )
@@ -189,8 +185,8 @@ def user_menu(db_session):
     """
 
     user_controller = UserController(db_session)
-    clear_screen()
     while True:
+        clear_console()
         table = Table(title="[bold blue]👩‍💼 Menu Utilisateur 👩‍💼[/]", box=box.ROUNDED)
         table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
         table.add_column("[bold green]Options[/]")
@@ -250,6 +246,7 @@ def select_support_user(support_users):
     Display a list of support users and ask the user to select one
     :param support_users: list of support users
     """
+    clear_console()
     if not support_users:
         console.print("[bold red]❌ Aucun utilisateur de support disponible[/]")
         return None

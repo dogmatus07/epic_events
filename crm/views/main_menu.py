@@ -4,20 +4,15 @@ from rich.prompt import Prompt
 from rich.table import Table
 from rich.panel import Panel
 from rich import box
+from sqlalchemy.orm.sync import clear
 
 from crm.views.client_views import client_menu
 from crm.views.contract_views import contract_menu, filter_contract_menu
 from crm.views.event_views import event_menu
 from crm.views.user_views import user_menu
+from crm.utils.console import clear_console
 
 console = Console()
-
-
-def clear_screen():
-    """
-    Clear the screen
-    """
-    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_menu(title, options):
@@ -26,7 +21,7 @@ def display_menu(title, options):
     :param title: menu title
     :param options: list of options
     """
-    clear_screen()
+    clear_console()
 
     table = Table(title=f"[bold blue]✨{title}✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="bold magenta", width=6)

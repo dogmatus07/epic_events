@@ -1,4 +1,4 @@
-import os
+from crm.utils.console import clear_console
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import Prompt, Confirm
@@ -7,15 +7,9 @@ from rich import box
 from datetime import datetime
 from crm.controllers.client_controller import ClientController
 from crm.controllers.base_controller import BaseController
+from sentry_sdk import capture_exception
 
 console = Console()
-
-
-def clear_screen():
-    """
-    Clear the screen
-    """
-    os.system("cls" if os.name == "nt" else "clear")
 
 
 def display_client_list(clients):
@@ -24,7 +18,7 @@ def display_client_list(clients):
     :param clients:
     :return: list of clients
     """
-    clear_screen()
+    clear_console()
     table = Table(title="[bold blue]✨Liste des clients✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]ID[/]", style="bold magenta", width=6)
     table.add_column("[bold green]Nom complet[/]")
@@ -63,7 +57,7 @@ def create_client(db_session, current_user_token):
     :param current_user_token : current user token
     """
     client_controller = ClientController(db_session)
-    console.clear()
+    clear_console()
     console.print("[bold blue]➕ Création d'un nouveau client ➕[/]\n")
 
     base_controller = BaseController(db_session, current_user_token)
@@ -108,16 +102,20 @@ def create_client(db_session, current_user_token):
         "commercial_id": current_user.id,
     }
 
-    new_client = client_controller.create_client(client_data)
-    if new_client:
-        console.print("[bold green]✅ Nouveau client créé avec succès[/]")
-        return new_client
-    else:
-        console.print(
-            "[bold red]❌ Une erreur s'est produite lors de la création du client[/]"
-        )
+    try:
+        new_client = client_controller.create_client(client_data)
+        if new_client:
+            console.print("[bold green]✅ Nouveau client créé avec succès[/]")
+            return new_client
+        else:
+            console.print(
+                "[bold red]❌ Une erreur s'est produite lors de la création du client[/]"
+            )
+            return None
+    except Exception as e:
+        capture_exception(e)
+        console.print(f"[bold red]❌ Erreur inattendue lors de la création du client[/]")
         return None
-
 
 def select_client(clients):
     """
@@ -128,12 +126,12 @@ def select_client(clients):
         return
 
     while True:
-        console.clear()
+        clear_console()
         display_client_list(clients)
 
         index = Prompt.ask("[bold cyan][1] Sélectionnez un client[/] | [0] Retour", default="1")
         if index == "0":
-            console.clear()
+            clear_console()
             return None
 
         try:
@@ -166,48 +164,53 @@ def update_client(db_session):
     if not client:
         return
 
-    console.clear()
+    clear_console()
     console.print(f"[bold blue]🔄 Modification du client : {client.full_name}🔄[/]\n")
 
-    full_name = Prompt.ask(
-        "[bold cyan]Nom complet du client[/]", default=client.full_name
-    )
-    email = Prompt.ask("[bold cyan]E-mail du client[/]", default=client.email)
-    phone = Prompt.ask("[bold cyan]Téléphone du client[/]", default=client.phone)
-    company_name = Prompt.ask(
-        "[bold cyan]Nom de la société du client[/]", default=client.company_name
-    )
-    first_contact_date_str = Prompt.ask(
-        "[bold cyan]Date du premier contact (DD-MM-YYYY)[/]",
-        default=client.first_contact_date.strftime("%d-%m-%Y"),
-    )
-    last_update_date = datetime.now().date()
-
     try:
-        first_contact_date = datetime.strptime(
-            first_contact_date_str, "%d-%m-%Y"
-        ).date()
-    except ValueError:
-        console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
-        return None
-
-    updated_data = {
-        "full_name": full_name,
-        "email": email,
-        "phone": phone,
-        "company_name": company_name,
-        "first_contact_date": first_contact_date,
-        "last_update_date": last_update_date,
-    }
-
-    updated_client = client_controller.update_client(client.id, updated_data)
-    if updated_client:
-        console.print("[bold green]✅ Client mis à jour avec succès[/]")
-        return updated_client
-    else:
-        console.print(
-            "[bold red]❌ Une erreur s'est produite lors de la mise à jour du client[/]"
+        full_name = Prompt.ask(
+            "[bold cyan]Nom complet du client[/]", default=client.full_name
         )
+        email = Prompt.ask("[bold cyan]E-mail du client[/]", default=client.email)
+        phone = Prompt.ask("[bold cyan]Téléphone du client[/]", default=client.phone)
+        company_name = Prompt.ask(
+            "[bold cyan]Nom de la société du client[/]", default=client.company_name
+        )
+        first_contact_date_str = Prompt.ask(
+            "[bold cyan]Date du premier contact (DD-MM-YYYY)[/]",
+            default=client.first_contact_date.strftime("%d-%m-%Y"),
+        )
+        last_update_date = datetime.now().date()
+
+        try:
+            first_contact_date = datetime.strptime(
+                first_contact_date_str, "%d-%m-%Y"
+            ).date()
+        except ValueError:
+            console.print("[bold red]❌ Les dates doivent être au format DD-MM-YYYY[/]")
+            return None
+
+        updated_data = {
+            "full_name": full_name,
+            "email": email,
+            "phone": phone,
+            "company_name": company_name,
+            "first_contact_date": first_contact_date,
+            "last_update_date": last_update_date,
+        }
+
+        updated_client = client_controller.update_client(client.id, updated_data)
+        if updated_client:
+            console.print("[bold green]✅ Client mis à jour avec succès[/]")
+            return updated_client
+        else:
+            console.print(
+                "[bold red]❌ Une erreur s'est produite lors de la mise à jour du client[/]"
+            )
+            return None
+    except Exception as e:
+        capture_exception(e)
+        console.print(f"[bold red]❌ Erreur inattendue lors de la mise à jour du client[/]")
         return None
 
 
@@ -230,12 +233,18 @@ def delete_client(db_session):
     console.print(f"[bold red]⚠️ Suppression du client : {client.full_name}[/]")
     confirm = Confirm.ask("Confirmez-vous la suppression de ce client ?")
     if confirm:
-        success = client_controller.delete_client(client.id)
-        if success:
-            console.print("[bold green]✅ Client supprimé avec succès[/]")
-        else:
+        try:
+            success = client_controller.delete_client(client.id)
+            if success:
+                console.print("[bold green]✅ Client supprimé avec succès[/]")
+            else:
+                console.print(
+                    "[bold red]❌ Une erreur s'est produite lors de la suppression du client[/]"
+                )
+        except Exception as e:
+            capture_exception(e)
             console.print(
-                "[bold red]❌ Une erreur s'est produite lors de la suppression du client[/]"
+                "[bold red]❌ Une erreur inattendue s'est produite lors de la suppression du client[/]"
             )
 
 
@@ -253,7 +262,7 @@ def client_menu(db_session, current_user_token, create_mode=False, update_mode=F
         return
 
     while True:
-        clear_screen()
+        clear_console()
         title = "👥 Menu Client 👥"
         options = {
             "1": "Afficher clients",

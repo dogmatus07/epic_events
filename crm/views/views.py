@@ -1,5 +1,5 @@
-import os
 from rich.console import Console
+from crm.utils.console import clear_console
 from rich.table import Table
 from rich.panel import Panel
 from rich.box import DOUBLE
@@ -21,20 +21,13 @@ LOGO = r"""[bold blue]
 """
 
 
-def clear_screen():
-    """
-    Clear the screen
-    """
-    os.system("cls" if os.name == "nt" else "clear")
-
-
 def authenticate_user():
     """
     Authenticate a user before
     """
     db_session = SessionLocal()
     auth_manager = AuthManager(db_session)
-    console.clear()
+    clear_console()
     console.print(LOGO)
     console.print(
         Panel.fit(
@@ -69,7 +62,7 @@ def display_menu(title, options):
     :param title: menu title
     :param options: list of options
     """
-    clear_screen()
+    clear_console()
 
     table = Table(title=f"[bold blue]✨{title}✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="bold magenta", width=6)

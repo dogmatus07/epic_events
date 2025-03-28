@@ -1,5 +1,6 @@
 from rich.console import Console
 from crm.views.views import authenticate_user
+from crm.utils.console import clear_console
 from crm.views.main_menu import main_menu
 from auth.auth_manager import AuthManager
 from crm.db.session import SessionLocal
@@ -37,11 +38,12 @@ if __name__ == "__main__":
         print("Rôle non trouvé dans le token")
         exit()
     else:
+        clear_console()
         print(f"Connexion réussie, Rôle: {role}")
 
     # display menu according to the role
     try:
-        console.clear()
+        clear_console()
         main_menu(role, db_session, token, user_id)
     except Exception as e:
         capture_exception(e)

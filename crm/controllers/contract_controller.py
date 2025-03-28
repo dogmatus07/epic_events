@@ -3,8 +3,8 @@ from crm.models.models import Contract
 from sentry_sdk import capture_exception
 from rich.console import Console
 
-console = Console()
 
+console = Console()
 
 class ContractController:
     """
@@ -18,7 +18,12 @@ class ContractController:
         """
         Get all contracts from the database.
         """
-        return self.db_session.query(Contract).all()
+        try:
+            return self.db_session.query(Contract).all()
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la récupération des contrats")
+            return None
 
     def create_contract(self, contract_data):
         """
