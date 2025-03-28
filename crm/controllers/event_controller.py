@@ -7,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 console = Console()
 
+
 class EventController:
     """
     Controller class for Event model.
@@ -75,7 +76,11 @@ class EventController:
                 if not current_user:
                     return []
 
-                events = self.db_session.query(Event).filter(Event.support_id == current_user.id).all()
+                events = (
+                    self.db_session.query(Event)
+                    .filter(Event.support_id == current_user.id)
+                    .all()
+                )
                 return events
 
             events = self.db_session.query(Event).all()
@@ -90,7 +95,9 @@ class EventController:
         Get all events that are not assigned to a support user
         """
         try:
-            events = self.db_session.query(Event).filter(Event.support_id.is_(None)).all()
+            events = (
+                self.db_session.query(Event).filter(Event.support_id.is_(None)).all()
+            )
             return events
         except Exception as e:
             capture_exception(e)
@@ -123,7 +130,11 @@ class EventController:
                 current_user = self.get_current_user()
                 if not current_user:
                     return []
-                events = self.db_session.query(Event).filter(Event.support_id == str(current_user.id)).all()
+                events = (
+                    self.db_session.query(Event)
+                    .filter(Event.support_id == str(current_user.id))
+                    .all()
+                )
                 return events
 
             events = db_session.query(Event).all()
@@ -142,7 +153,11 @@ class EventController:
                 console.print("[bold red]❌ Aucun utilisateur actuel trouvé[/]")
                 return None
 
-            user = self.db_session.query(User).filter(User.id == str(self.current_user_id)).first()
+            user = (
+                self.db_session.query(User)
+                .filter(User.id == str(self.current_user_id))
+                .first()
+            )
             if user:
                 return user
             else:

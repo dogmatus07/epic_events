@@ -7,11 +7,11 @@ from rich.console import Console
 
 console = Console()
 
+
 class ClientController:
     """
     Controller class for Client model.
     """
-
 
     def __init__(self, db_session: Session):
         self.db_session = db_session
@@ -58,7 +58,6 @@ class ClientController:
             capture_exception(e)
             console.print("Erreur lors de la mise à jour du client")
             return None
-
 
     def delete_client(self, client_id):
         """

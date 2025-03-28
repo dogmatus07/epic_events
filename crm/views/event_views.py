@@ -68,7 +68,9 @@ def select_event(events):
 
     display_events_list(events)
     choice = Prompt.ask(
-        "[bold cyan]Que souhaitez-vous faire ? (1 : Sélectionner un événement | 0 : Retour)[/]", choices=["1", "0"])
+        "[bold cyan]Que souhaitez-vous faire ? (1 : Sélectionner un événement | 0 : Retour)[/]",
+        choices=["1", "0"],
+    )
     if choice == "1":
         event_index = Prompt.ask(
             "[bold cyan]Sélectionnez un événement par son Index[/]",
@@ -162,7 +164,9 @@ def update_event(event, db_session, is_support_user=False):
     :return: updated event data
     """
     console.print("[bold blue]🔄 Mise à jour de l'événement 🔄[/]\n")
-    console.print(f"[bold cyan]Contrat lié à l'événement du client : {event.contract.client.full_name}[/]")
+    console.print(
+        f"[bold cyan]Contrat lié à l'événement du client : {event.contract.client.full_name}[/]"
+    )
 
     if not is_support_user:
         support_users = UserController(db_session).get_all_support_users()
@@ -260,15 +264,21 @@ def event_menu(
         if event_data:
             event_controller.create_event(event_data)
     elif update_event_mode:
-        current_user = EventController(db_session, current_user_id=user_id).get_current_user()
+        current_user = EventController(
+            db_session, current_user_id=user_id
+        ).get_current_user()
         if not current_user:
             console.print("[bold red]❌ Utilisateur non trouvé[/]")
             Prompt.ask("[bold cyan]Appuyez sur entrée pour continuer...[/]")
             return
         is_support_user = current_user.role.role_name.strip().lower() == "support"
-        events = event_controller.get_events(db_session, support_only=True if is_support_user else False)
+        events = event_controller.get_events(
+            db_session, support_only=True if is_support_user else False
+        )
         event = select_event(events)
         if event:
-            updated_data = update_event(event, db_session, is_support_user=is_support_user)
+            updated_data = update_event(
+                event, db_session, is_support_user=is_support_user
+            )
             if updated_data:
                 event_controller.update_event(event.id, updated_data)

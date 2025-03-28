@@ -47,8 +47,13 @@ def authenticate_user():
             console.print("Authentification réussie", style="bold green")
             return token
         else:
-            capture_message("Authentification échouée pour l'utilisateur : " + email, level="warning")
-            console.print("Authentification échouée, veuillez réessayer", style="bold red")
+            capture_message(
+                "Authentification échouée pour l'utilisateur : " + email,
+                level="warning",
+            )
+            console.print(
+                "Authentification échouée, veuillez réessayer", style="bold red"
+            )
             return None
     except Exception as auth_error:
         capture_exception(auth_error)
@@ -73,7 +78,9 @@ def display_menu(title, options):
             table.add_row(keys, values)
 
         console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
-        choice = Prompt.ask("[bold cyan]Choisissez une option[/]", choices=options.keys())
+        choice = Prompt.ask(
+            "[bold cyan]Choisissez une option[/]", choices=options.keys()
+        )
         return str(choice)
     except Exception as e:
         capture_exception(e)

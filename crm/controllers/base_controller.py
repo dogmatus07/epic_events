@@ -8,6 +8,7 @@ from rich.console import Console
 
 console = Console()
 
+
 class BaseController:
     """
     Base controller class
@@ -23,7 +24,9 @@ class BaseController:
         Get the current logged in user based on the token
         """
         try:
-            payload = jwt.decode(self.current_user_token, SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(
+                self.current_user_token, SECRET_KEY, algorithms=["HS256"]
+            )
             user_id = payload.get("user_id")
             return self.db_session.get(User, user_id)
         except jwt.ExpiredSignatureError as e:

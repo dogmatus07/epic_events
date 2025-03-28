@@ -6,6 +6,7 @@ from rich.console import Console
 
 console = Console()
 
+
 class ContractController:
     """
     Controller class for Contract model.
@@ -39,7 +40,6 @@ class ContractController:
             console.print("Erreur lors de la création du contrat")
             return None
 
-
     def update_contract(self, contract_id, updated_data):
         """
         Update a contract.
@@ -68,7 +68,9 @@ class ContractController:
             if signed is not None:
                 query = query.filter(Contract.signed == signed)
             if fully_paid is not None:
-                query = query.filter(Contract.amount_due == 0 if fully_paid else Contract.amount_due > 0)
+                query = query.filter(
+                    Contract.amount_due == 0 if fully_paid else Contract.amount_due > 0
+                )
             return query.all()
         except Exception as e:
             capture_exception(e)

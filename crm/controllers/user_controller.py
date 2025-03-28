@@ -26,7 +26,11 @@ class UserController:
         Get all users with a specific role.
         """
         try:
-            users_by_role = self.db_session.query(User).join(Role).filter(Role.role_name == role_name)
+            users_by_role = (
+                self.db_session.query(User)
+                .join(Role)
+                .filter(Role.role_name == role_name)
+            )
             if users_by_role:
                 return users_by_role.all()
             else:
@@ -43,8 +47,11 @@ class UserController:
         # check if user already exist
         try:
             self.db_session.expire_all()
-            existing_user = self.db_session.query(User).filter_by(
-                email=user_data.get("email")).first()
+            existing_user = (
+                self.db_session.query(User)
+                .filter_by(email=user_data.get("email"))
+                .first()
+            )
             if existing_user:
                 return None
 
@@ -56,7 +63,9 @@ class UserController:
             new_user = User(**user_data, hashed_password=hashed_password)
             self.db_session.add(new_user)
             self.db_session.commit()
-            user_verif = self.db_session.query(User).filter_by(email=user_data["email"]).first()
+            user_verif = (
+                self.db_session.query(User).filter_by(email=user_data["email"]).first()
+            )
             return new_user
         except Exception as e:
             capture_exception(e)
@@ -108,7 +117,9 @@ class UserController:
         Get all support users from the database.
         """
         try:
-            all_support_users = self.db_session.query(User).filter(User.role_name == "Support").all()
+            all_support_users = (
+                self.db_session.query(User).filter(User.role_name == "Support").all()
+            )
             if all_support_users:
                 return all_support_users
             else:

@@ -1,7 +1,9 @@
 import os
+import sys
+
 
 def clear_console():
-    """
-    Clear the console
-    """
-    os.system("cls" if os.name == "nt" else "clear")
+    if os.getenv("TERM") is not None and sys.stdout.isatty():
+        os.system("clear" if os.name != "nt" else "cls")
+    else:
+        print("\n" * 100)

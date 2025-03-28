@@ -24,7 +24,14 @@ def display_contract_list(contracts):
     clear_console()
     table = Table(title="[bold blue]✨Liste des contrats✨[/]", box=box.ROUNDED)
     table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
-    options = ["ID Contrat", "Client", "Montant total", "Montant dû", "Signé", "Commercial"]
+    options = [
+        "ID Contrat",
+        "Client",
+        "Montant total",
+        "Montant dû",
+        "Signé",
+        "Commercial",
+    ]
     for idx, option in enumerate(options, start=1):
         table.add_column(f"[bold green]{option}[/]")
     for idx, contract in enumerate(contracts, start=1):
@@ -53,12 +60,16 @@ def select_contract(contracts):
 
     display_contract_list(contracts)
     choice = Prompt.ask(
-        "[bold cyan]Que souhaitez-vous faire ? (1: Choisir un contrat à modifier | 0: Retour[/]", choices=["1", "0"])
+        "[bold cyan]Que souhaitez-vous faire ? (1: Choisir un contrat à modifier | 0: Retour[/]",
+        choices=["1", "0"],
+    )
     if choice == "0":
         return None
     elif choice == "1":
         try:
-            index = Prompt.ask("[bold cyan]Sélectionnez un contrat par son index[/]", default=1)
+            index = Prompt.ask(
+                "[bold cyan]Sélectionnez un contrat par son index[/]", default=1
+            )
             if 1 <= int(index) <= len(contracts):
                 return contracts[int(index) - 1]
             else:
@@ -82,11 +93,15 @@ def create_contract(db_session):
         clients = client_controller.get_all_clients()
 
         if not clients:
-            console.print("[bold red]❌ Aucun client disponible pour créer un contrat[/]")
+            console.print(
+                "[bold red]❌ Aucun client disponible pour créer un contrat[/]"
+            )
             return None
     except Exception as e:
         capture_exception(e)
-        console.print("[bold red]❌ Une erreur s'est produite lors de la récupération des clients[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la récupération des clients[/]"
+        )
         return None
 
     # select a client
@@ -95,7 +110,9 @@ def create_contract(db_session):
         return None
 
     try:
-        total_amount = float(Prompt.ask("[bold cyan]Montant total du contrat[/]", default="1000"))
+        total_amount = float(
+            Prompt.ask("[bold cyan]Montant total du contrat[/]", default="1000")
+        )
         amount_due = float(Prompt.ask("[bold cyan]Montant dû[/]", default="1000"))
         signed = Confirm.ask("[bold cyan]Le contrat est-il signé ?[/]", default=False)
 
@@ -119,7 +136,9 @@ def create_contract(db_session):
             return None
     except Exception as e:
         capture_exception(e)
-        console.print("[bold red]❌ Une erreur s'est produite lors de la création du contrat[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la création du contrat[/]"
+        )
         return None
 
 
@@ -135,11 +154,15 @@ def update_contract(db_session):
         contracts = contact_controller.get_all_contracts()
 
         if not contracts:
-            console.print("[bold red]❌ Aucun contrat disponible pour créer un contrat[/]")
+            console.print(
+                "[bold red]❌ Aucun contrat disponible pour créer un contrat[/]"
+            )
             return None
     except Exception as e:
         capture_exception(e)
-        console.print("[bold red]❌ Une erreur s'est produite lors de la récupération des contrats[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la récupération des contrats[/]"
+        )
         return None
 
     # Select a contract to update
@@ -173,7 +196,9 @@ def update_contract(db_session):
             return None
     except Exception as e:
         capture_exception(e)
-        console.print("[bold red]❌ Une erreur s'est produite lors de la mise à jour du contrat[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la mise à jour du contrat[/]"
+        )
         return None
 
 
@@ -195,7 +220,9 @@ def delete_contract(db_session):
             return
     except Exception as e:
         capture_exception(e)
-        console.print("[bold red]❌ Une erreur s'est produite lors de la récupération des contrats[/]")
+        console.print(
+            "[bold red]❌ Une erreur s'est produite lors de la récupération des contrats[/]"
+        )
         return
 
     # select a contract to delete
@@ -218,7 +245,9 @@ def delete_contract(db_session):
                 )
         except Exception as e:
             capture_exception(e)
-            console.print("[bold red]❌ Erreur inattendue lors de la suppression du contrat[/]")
+            console.print(
+                "[bold red]❌ Erreur inattendue lors de la suppression du contrat[/]"
+            )
 
 
 def contract_menu(db_session, update_mode=False, filter_mode=False):
@@ -244,26 +273,33 @@ def contract_menu(db_session, update_mode=False, filter_mode=False):
         table = Table(title="[bold blue]📝 Menu Contrat 📝[/]", box=box.ROUNDED)
         table.add_column("[bold green]Index[/]", style="bold magenta", width=6)
         table.add_column("[bold green]Options[/]")
-        options = ["Afficher contrats", "Ajouter contrat", "Modifier contrat", "Supprimer contrat", "Retour"]
+        options = [
+            "Afficher contrats",
+            "Ajouter contrat",
+            "Modifier contrat",
+            "Supprimer contrat",
+            "Retour",
+        ]
         for idx, option in enumerate(options, start=1):
             table.add_row(str(idx), option)
         console.print(Panel(table, title="🔧 EPIC EVENTS CRM", expand=False))
         choice = Prompt.ask(
             "[bold cyan]Choisissez une option[/]",
-            choices=["1", "2", "3", "4", "0"],
+            choices=["1", "2", "3", "4", "5"],
         )
 
         if choice == "1":
             contracts = contract_controller.get_all_contracts()
             display_contract_list(contracts)
             Prompt.ask("[bold cyan]Appuyez sur entrée pour retourner au menu[/]")
+            clear_console()
         elif choice == "2":
             create_contract(db_session)
         elif choice == "3":
             update_contract(db_session)
         elif choice == "4":
             delete_contract(db_session)
-        elif choice == "0":
+        elif choice == "5":
             break
 
 

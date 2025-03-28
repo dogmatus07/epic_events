@@ -6,6 +6,7 @@ from rich.console import Console
 
 console = Console()
 
+
 class RoleController:
     """
     Controller class for Role model.
@@ -44,7 +45,6 @@ class RoleController:
             capture_exception(e)
             console.print("Error creating role")
             return None
-
 
     def delete_role(self, role_id: int):
         """

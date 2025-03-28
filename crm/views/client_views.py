@@ -64,7 +64,9 @@ def create_client(db_session, current_user_token):
     current_user = base_controller.current_user
 
     if not current_user or current_user.role_name.lower() != "commercial":
-        console.print("[bold red]❌ Vous devez être un commercial pour créer un client[/]")
+        console.print(
+            "[bold red]❌ Vous devez être un commercial pour créer un client[/]"
+        )
         Prompt.ask("Appuyez sur entrée pour continuer...")
         return None
 
@@ -114,8 +116,11 @@ def create_client(db_session, current_user_token):
             return None
     except Exception as e:
         capture_exception(e)
-        console.print(f"[bold red]❌ Erreur inattendue lors de la création du client[/]")
+        console.print(
+            f"[bold red]❌ Erreur inattendue lors de la création du client[/]"
+        )
         return None
+
 
 def select_client(clients):
     """
@@ -129,7 +134,9 @@ def select_client(clients):
         clear_console()
         display_client_list(clients)
 
-        index = Prompt.ask("[bold cyan][1] Sélectionnez un client[/] | [0] Retour", default="1")
+        index = Prompt.ask(
+            "[bold cyan][1] Sélectionnez un client[/] | [0] Retour", default="1"
+        )
         if index == "0":
             clear_console()
             return None
@@ -210,7 +217,9 @@ def update_client(db_session):
             return None
     except Exception as e:
         capture_exception(e)
-        console.print(f"[bold red]❌ Erreur inattendue lors de la mise à jour du client[/]")
+        console.print(
+            f"[bold red]❌ Erreur inattendue lors de la mise à jour du client[/]"
+        )
         return None
 
 
