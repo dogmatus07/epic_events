@@ -1,11 +1,8 @@
-import os
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
 from rich.panel import Panel
 from rich import box
-from sqlalchemy.orm.sync import clear
-
 from crm.views.client_views import client_menu
 from crm.views.contract_views import contract_menu, filter_contract_menu
 from crm.views.event_views import event_menu
@@ -39,6 +36,7 @@ def gestion_menu(db_session, current_user_token, user_id):
     """
     Display the specific menu for role : Gestion
     """
+    clear_console()
     while True:
         choice = display_menu(
             "Menu Gestion",
