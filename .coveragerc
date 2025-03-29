@@ -1,0 +1,14 @@
+[run]
+omit =
+    */__init__.py
+    crm/db/session.py
+    crm/db/init_db.py
+    crm/views/main_menu.py
+    crm/repositories/user_repository.py
+    crm/db/base.py
+    crm/models/models.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

@@ -1,5 +1,11 @@
+from sqlalchemy.orm import Session
 from crm.models.models import Client
-from crm.db.session import SessionLocal
+from datetime import datetime
+from sentry_sdk import capture_exception
+from rich.console import Console
+
+
+console = Console()
 
 
 class ClientController:
@@ -7,79 +13,64 @@ class ClientController:
     Controller class for Client model.
     """
 
-    @staticmethod
-    def get_all_clients():
+    def __init__(self, db_session: Session):
+        self.db_session = db_session
+
+    def get_all_clients(self):
         """
         Get all clients from the database.
         """
-        db = SessionLocal()
-        clients = db.query(Client).all()
-        db.close()
-        return clients
+        try:
+            return self.db_session.query(Client).all()
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la récupération des clients")
+            return None
 
-    @staticmethod
-    def create_client(
-        email,
-        full_name,
-        phone,
-        company_name,
-        first_contact_date,
-        last_update_date,
-        commercial_id,
-    ):
+    def create_client(self, client_data):
         """
-        Create a new client.
+        Create a new client and assign it to the current commercial user.
         """
-        db = SessionLocal()
-        client = Client(
-            email=email,
-            full_name=full_name,
-            phone=phone,
-            company_name=company_name,
-            first_contact_date=first_contact_date,
-            last_update_date=last_update_date,
-            commercial_id=commercial_id,
-        )
-        db.add(client)
-        db.commit()
-        db.close()
-        return client
+        try:
+            new_client = Client(**client_data)
+            self.db_session.add(new_client)
+            self.db_session.commit()
+            return new_client
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la création du client")
+            return None
 
-    @staticmethod
-    def update_client(
-        client_id,
-        email,
-        full_name,
-        phone,
-        company_name,
-        first_contact_date,
-        last_update_date,
-        commercial_id,
-    ):
+    def update_client(self, client_id, updated_data):
         """
         Update a client.
         """
-        db = SessionLocal()
-        client = db.query(Client).filter(Client.id == client_id).first()
-        client.email = email
-        client.full_name = full_name
-        client.phone = phone
-        client.company_name = company_name
-        client.first_contact_date = first_contact_date
-        client.last_update_date = last_update_date
-        client.commercial_id = commercial_id
-        db.commit()
-        db.close()
-        return client
+        try:
+            client = self.db_session.query(Client).filter_by(id=client_id).first()
+            if not client:
+                return None
+            for key, value in updated_data.items():
+                setattr(client, key, value)
+            client.last_update_date = datetime.now()
+            self.db_session.commit()
+            return client
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la mise à jour du client")
+            return None
 
-    @staticmethod
-    def delete_client(client_id):
+    def delete_client(self, client_id):
         """
         Delete a client.
         """
-        db = SessionLocal()
-        client = db.query(Client).filter(Client.id == client_id).first()
-        db.delete(client)
-        db.commit()
-        db.close()
-        return client
+        try:
+            client = self.db_session.get(Client, client_id)
+            if not client:
+                return None
+            self.db_session.delete(client)
+            self.db_session.commit()
+            return True
+        except Exception as e:
+            capture_exception(e)
+            console.print("Erreur lors de la suppression du client")
+            return None

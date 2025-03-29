@@ -25,13 +25,14 @@ class AuthManager:
         if not user:
             return None
 
-        if not PasswordUtils.verify_password(password, user.password):
+        if not PasswordUtils.verify_password(password, user.hashed_password):
             return None
 
         # generate token
         token = jwt.encode(
             {
                 "user_id": user.id,
+                "role": user.role_name,
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1),
             },
             SECRET_KEY,
