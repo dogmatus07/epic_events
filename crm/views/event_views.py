@@ -209,16 +209,31 @@ def update_event(event, db_session, is_support_user=False):
     }
 
 
-def delete_event(event):
+def delete_event(event, db_session):
     """
     Display a form for deleting an event
-    :param event:
+    :param event: event to delete
+    :param db_session: database session
     :return: boolean
     """
     console.print(
         f"[bold red]⚠️ Suppression de l'événement : {event.id} appartenant au contrat {event.contract}[/]"
     )
-    return Confirm.ask("[bold red]Confirmer la suppression ?[/]", default=False)
+    confirm = Confirm.ask("[bold red]Confirmer la suppression ?[/]", default=False)
+    if confirm:
+        try:
+            controller = EventController(db_session)
+            success = controller.delete_event(event.id)
+            if success:
+                console.print("[bold green]✅ Événement supprimé avec succès ![/]")
+                return True
+            else:
+                console.print("[bold red]❌ Échec de la suppression de l'événement ![/]")
+        except Exception as e:
+            capture_exception(e)
+            console.print("[bold red]❌ Erreur lors de la suppression de l'événement :[/]", e)
+
+    return False
 
 
 def event_menu(

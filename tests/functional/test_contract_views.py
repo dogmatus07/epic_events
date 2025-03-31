@@ -1,5 +1,6 @@
 import pytest
-from crm.views.contract_views import create_contract, update_contract, delete_contract
+import uuid
+from crm.views.contract_views import create_contract, update_contract, delete_contract, select_contract
 from crm.controllers import ContractController
 from crm.models.models import Contract
 
@@ -102,3 +103,33 @@ def test_delete_contract_view(db_session, test_client, monkeypatch):
 
     remaining_contract = controller.get_all_contracts()
     assert len(remaining_contract) == 0
+
+def test_select_contract_view(monkeypatch, db_session):
+    """
+    Test the select_contract function to ensure it returns a contract object based on user input.
+    """
+
+    controller = ContractController(db_session)
+
+    # create a fake contract
+    contract_data_1 = {
+        "client_id": str(uuid.uuid4()),
+        "total_amount": 1000,
+        "amount_due": 500,
+        "signed": True,
+    }
+    contract_data_2 = {
+        "client_id": str(uuid.uuid4()),
+        "total_amount": 2000,
+        "amount_due": 1000,
+        "signed": False,
+    }
+
+    contract_client_1 = controller.create_contract(contract_data_1)
+    contract_client_2 = controller.create_contract(contract_data_2)
+    contracts = controller.get_all_contracts()
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: "1")
+    selected_contract = select_contract(contracts)
+    assert len(contracts)  == 2
+    assert selected_contract is not None
+    assert selected_contract.id == contract_client_1.id

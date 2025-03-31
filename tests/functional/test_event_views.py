@@ -1,7 +1,7 @@
 import pytest
 import uuid
 from datetime import datetime, date
-from crm.views.event_views import create_event, display_events_list, update_event
+from crm.views.event_views import create_event, display_events_list, update_event, delete_event
 from crm.views import event_views
 from crm.controllers import EventController
 from crm.models.models import Role
@@ -113,3 +113,37 @@ def test_update_event_view(db_session, test_client, monkeypatch, setup_db):
     assert updated_data is not None
     assert updated_data["location"] == "Nancy"
     assert updated_data["attendees"] == 130
+
+def test_delete_event_view(monkeypatch, db_session):
+    """
+    Test delete_event view
+    """
+
+    controller = EventController(db_session)
+
+    # create a fake event
+    event_data = {
+        "contract_id": str(uuid.uuid4()),
+        "event_date_start": datetime.strptime("21-03-2025", "%d-%m-%Y").date(),
+        "event_date_end": datetime.strptime("27-03-2025", "%d-%m-%Y").date(),
+        "location": "Paris",
+        "attendees": 100,
+        "notes": "Annual meeting with NGO",
+        "support_id": str(uuid.uuid4())
+    }
+    event = controller.create_event(event_data)
+    event_list = controller.get_events(db_session, support_only=False)
+    prompt_value = iter([
+        "",  # enter key to continue
+        "1",  # select event menu
+        "1",  # select event index
+        "y",  # confirm deletion
+        "",
+    ])
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_value))
+    monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: True)
+    result = delete_event(event, db_session)
+    db_session.expire_all()
+    remaining_events = controller.get_events(db_session, support_only=False)
+    assert result is True
+    assert len(remaining_events) == 0
