@@ -62,7 +62,8 @@ Ce que le script init_db.py va faire :
    - commercial2@epicevents.com
    - support1@epicevents.com
    - support2@epicevents.com
-3. Etant donné qu'il s'agit d'un projet dans le cadre d'une formation, toutes les données ici sont factices et ne sont pas réels. Il a donc été défini un mot de passe par défaut qui est : epic-evenTs2025 pour tous les utilisateurs. 
+3. Etant donné qu'il s'agit d'un projet dans le cadre d'une formation, toutes les données ici sont factices et ne sont pas réels. Il a donc été défini un mot de passe par défaut qui est : 
+   - epic-evenTs2025 pour tous les utilisateurs. 
 
 ## Lancer l'application
 `python main.py`

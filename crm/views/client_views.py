@@ -63,9 +63,9 @@ def create_client(db_session, current_user_token):
     base_controller = BaseController(db_session, current_user_token)
     current_user = base_controller.current_user
 
-    if not current_user or current_user.role_name.lower() != "commercial":
+    if not current_user or current_user.role_name.lower() == "support":
         console.print(
-            "[bold red]❌ Vous devez être un commercial pour créer un client[/]"
+            "[bold red]❌ Vous devez être un commercial ou gestionnaire pour créer un client[/]"
         )
         Prompt.ask("Appuyez sur entrée pour continuer...")
         return None
@@ -295,7 +295,7 @@ def client_menu(db_session, current_user_token, create_mode=False, update_mode=F
             clients = client_controller.get_all_clients()
             display_client_list(clients)
         elif choice == "2":
-            create_client(client_controller.db_session)
+            create_client(client_controller.db_session, current_user_token)
         elif choice == "3":
             update_client(client_controller.db_session)
         elif choice == "4":
