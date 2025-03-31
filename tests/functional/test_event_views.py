@@ -60,18 +60,37 @@ def test_display_event_list_view(db_session, test_client, monkeypatch, setup_db)
 
     assert True
 
-def test_select_event_view(db_session, test_client, monkeypatch, setup_db):
+def test_select_event_view(monkeypatch, db_session):
     """
     Test select_event view
     """
-    prompt_values = iter([
-        "1",  # Choose an event
-        "1",  # Choose an event by ID
+    controller = EventController(db_session)
+
+    # create a fake event
+    event_data = {
+        "contract_id": str(uuid.uuid4()),
+        "event_date_start": datetime.strptime("21-03-2025", "%d-%m-%Y").date(),
+        "event_date_end": datetime.strptime("27-03-2025", "%d-%m-%Y").date(),
+        "location": "Paris",
+        "attendees": 100,
+        "notes": "Annual meeting with NGO",
+        "support_id": str(uuid.uuid4())
+    }
+
+    event = controller.create_event(event_data)
+    event_list = controller.get_events(db_session, support_only=False)
+    prompt_value = iter([
+        "",  # enter key to continue
+        "1",  # select event menu
+        "1",  # select event index
+        "y",  # confirm selection
+        "" # enter key to continue
     ])
-
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values))
-
-    assert True
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_value))
+    monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: True)
+    selected_event = event_views.select_event(event_list)
+    assert selected_event is not None
+    assert selected_event.id == event.id
 
 def test_update_event_view(db_session, test_client, monkeypatch, setup_db):
     """

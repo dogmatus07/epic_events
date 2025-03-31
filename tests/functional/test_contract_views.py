@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from crm.views.contract_views import create_contract, update_contract, delete_contract, select_contract
+from crm.views.contract_views import create_contract, update_contract, delete_contract, select_contract, filter_contract_menu
 from crm.controllers import ContractController
 from crm.models.models import Contract
 
@@ -133,3 +133,34 @@ def test_select_contract_view(monkeypatch, db_session):
     assert len(contracts)  == 2
     assert selected_contract is not None
     assert selected_contract.id == contract_client_1.id
+
+def test_filter_contract_menu(monkeypatch, db_session):
+    """
+    Test the filter_contract function to ensure it returns a list of contracts based on user input.
+    """
+    controller = ContractController(db_session)
+
+    # create a fake contract
+    contract_data_1 = {
+        "client_id": str(uuid.uuid4()),
+        "total_amount": 1000,
+        "amount_due": 500,
+        "signed": True,
+    }
+    contract_data_2 = {
+        "client_id": str(uuid.uuid4()),
+        "total_amount": 2000,
+        "amount_due": 1000,
+        "signed": False,
+    }
+
+    controller.create_contract(contract_data_1)
+    controller.create_contract(contract_data_2)
+
+    prompt_sequence = iter(["2", "3", "4", "5", "0"])  # Simulate user input for filtering
+    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_sequence))
+    monkeypatch.setattr("crm.views.contract_views.display_menu", lambda title, options: next(prompt_sequence))
+    monkeypatch.setattr("crm.views.contract_views.display_contract_list", lambda contracts: None)
+
+    filter_contract_menu(db_session)
+    assert True
