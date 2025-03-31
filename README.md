@@ -5,10 +5,28 @@ L'application est conçue avec **Python, SQLAlchemy et SQLite**
 
 ---
 
-## Technologies utilisées
-- Python 3.9.6
-- SQLAlchemy 2.0.37
-- 
+## Fonctionnalités principales
+- Authentification JWT sécurisée
+- Rôles utilisateurs : Commercial, Support, Gestion
+- Création, lecture, modification et suppression de :
+  - Clients 👤 
+  - Contrats 📄 (avec filtres : signé, payé...)
+  - Evénements 🗓️ (réservés aux contrats existants)
+- Interface colorée et lisible grâce à Rich
+- Journalisation des erreurs avec Sentry
+- Tests automatisés avec Pytest et rapports de couverture
+
+## Stack
+|                 Composants | Techno ou Librairie |
+|-----------------------|---------------------|
+|               Langage | Python 3.9.6        |
+|                        ORM | SQLAlchemy          |
+|            Base de données | SQLite              |
+|           Authentification | JWT                 |
+| Journalisation des erreurs | Sentry              |
+|          Tests automatisés | Pytest              |
+|      Interface utilisateur | Rich                |
+
 ## Installation
 
 ### Clôner le dépôt
@@ -44,7 +62,7 @@ Ce que le script init_db.py va faire :
    - commercial2@epicevents.com
    - support1@epicevents.com
    - support2@epicevents.com
-3. Le mot de passe par défaut est : epic-evenTs2025 pour tous les utilisateurs.
+3. Etant donné qu'il s'agit d'un projet dans le cadre d'une formation, toutes les données ici sont factices et ne sont pas réels. Il a donc été défini un mot de passe par défaut qui est : epic-evenTs2025 pour tous les utilisateurs. 
 
 ## Lancer l'application
 `python main.py`
@@ -112,8 +130,34 @@ Les gestionnaires assignent les événements au support. Le support peut ensuite
 Les gestionnaires, les commerciaux et le support peuvent afficher la liste des événements existants. Les événements sont affichés avec leurs détails, y compris le client associé, la date de l'événement et le statut.
 ### Gestion des erreurs
 L'application gère les erreurs courantes, telles que les entrées invalides ou les tentatives de connexion échouées. Des messages d'erreur appropriés sont affichés pour aider l'utilisateur à corriger ses erreurs.
-### Sécurité
-L'application utilise des pratiques de sécurité standard pour protéger les données des utilisateurs et des clients. Les mots de passe sont stockés de manière sécurisée et les connexions sont protégées par une authentification sécurisée.
+
+### Organisation du projet
+
+Le projet est organisé de la manière suivante :
+```
+crm/
+├── controllers/
+├── repositories/
+├── utils/
+├── views/
+├── models/
+├── db/
+├── utils/
+main.py
+.env
+requirements.txt
+tests/
+```
+
+### Sécurité & Journalisation
+- Toutes les erreurs critiques sont remontées automatiquement à Sentry
+- Les exceptions sont capturées dans les controllers et les vues critiques
+- Le code suit les recommandations OWASP de base :
+  - Validation des données utilisateur
+  - Pas de mot de passe stocké en clair
+  - Utilisation d'ORM pour éviter les injections SQL
+
+
 ### Contribuer
 Si vous souhaitez contribuer à l'application Epic Events CRM, n'hésitez pas à soumettre des demandes de tirage (pull requests) ou à signaler des problèmes (issues) sur le dépôt GitHub.
 ### Auteurs

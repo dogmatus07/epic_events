@@ -44,7 +44,7 @@ def display_client_list(clients):
             commercial_name,
         )
 
-    console.print(Panel(table, title="🚀 Clients", expand=False))
+    console.print(table)
     Prompt.ask("Appuyez sur entrée pour continuer...")
 
 
