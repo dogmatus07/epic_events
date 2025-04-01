@@ -63,9 +63,7 @@ class UserController:
             new_user = User(**user_data, hashed_password=hashed_password)
             self.db_session.add(new_user)
             self.db_session.commit()
-            user_verif = (
-                self.db_session.query(User).filter_by(email=user_data["email"]).first()
-            )
+
             return new_user
         except Exception as e:
             capture_exception(e)

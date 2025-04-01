@@ -70,7 +70,6 @@ def setup_db(db_session):
     db_session.add(support_user)
     db_session.commit()
 
-
     # 🔹 Add client
     test_client = Client(
         id=str(uuid.uuid4()),

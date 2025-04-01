@@ -116,9 +116,7 @@ def create_client(db_session, current_user_token):
             return None
     except Exception as e:
         capture_exception(e)
-        console.print(
-            f"[bold red]❌ Erreur inattendue lors de la création du client[/]"
-        )
+        console.print("[bold red]❌ Erreur inattendue lors de la création du client[/]")
         return None
 
 
@@ -218,7 +216,7 @@ def update_client(db_session):
     except Exception as e:
         capture_exception(e)
         console.print(
-            f"[bold red]❌ Erreur inattendue lors de la mise à jour du client[/]"
+            "[bold red]❌ Erreur inattendue lors de la mise à jour du client[/]"
         )
         return None
 

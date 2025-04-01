@@ -16,6 +16,7 @@ def generate_valid_token(user_id):
     payload = {"user_id": user_id}
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
+
 def test_get_current_user(db_session):
     """
     Test get_current_user method
@@ -36,6 +37,7 @@ def test_get_current_user(db_session):
     token = generate_valid_token(user.id)
     controller = BaseController(db_session, token)
     assert controller.current_user == user
+
 
 def test_get_current_user_invalid_token(db_session):
     """

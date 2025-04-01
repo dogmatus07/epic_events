@@ -46,13 +46,15 @@ def test_update_client(db_session):
 
 def test_delete_client(db_session):
     controller = ClientController(db_session)
-    client = controller.create_client({
-        "full_name": "Jane Doe",
-        "email": "janedoe@gmail.com",
-        "phone": "078654323",
-        "company_name": "NEWCOMPANY LTD",
-        "first_contact_date": datetime.now(),
-        "last_update_date": datetime.now(),
-    })
+    client = controller.create_client(
+        {
+            "full_name": "Jane Doe",
+            "email": "janedoe@gmail.com",
+            "phone": "078654323",
+            "company_name": "NEWCOMPANY LTD",
+            "first_contact_date": datetime.now(),
+            "last_update_date": datetime.now(),
+        }
+    )
     result = controller.delete_client(client.id)
     assert result is True

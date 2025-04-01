@@ -16,6 +16,7 @@ def test_create_role(db_session):
     assert isinstance(role, Role)
     assert role.role_name == "admin"
 
+
 def test_get_all_roles(db_session):
     """
     Test getting all roles
@@ -26,6 +27,7 @@ def test_get_all_roles(db_session):
     roles = controller.get_all_roles()
     assert isinstance(roles, list)
     assert all(isinstance(role, Role) for role in roles)
+
 
 def test_delete_role(db_session):
     """

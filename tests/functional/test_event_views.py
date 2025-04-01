@@ -1,7 +1,12 @@
 import pytest
 import uuid
 from datetime import datetime, date
-from crm.views.event_views import create_event, display_events_list, update_event, delete_event
+from crm.views.event_views import (
+    create_event,
+    display_events_list,
+    update_event,
+    delete_event,
+)
 from crm.views import event_views
 from crm.controllers import EventController
 from crm.models.models import Role
@@ -11,19 +16,23 @@ def test_create_event_view(db_session, test_client, monkeypatch, setup_db):
     """
     Test create_event view
     """
-    prompt_inputs = iter([
-        "",               # Push enter to continue
-        "1",              # Choose to edit a contract
-        "1",              # Choose a contract by ID
-        "1",              # Choose a support user
-        "01-05-2025",     # Date start
-        "06-05-2025",     # Date end
-        "Paris",          # Location
-        "100",            # attendees
-        "Annual meeting with NGO",  # Notes
-    ])
+    prompt_inputs = iter(
+        [
+            "",  # Push enter to continue
+            "1",  # Choose to edit a contract
+            "1",  # Choose a contract by ID
+            "1",  # Choose a support user
+            "01-05-2025",  # Date start
+            "06-05-2025",  # Date end
+            "Paris",  # Location
+            "100",  # attendees
+            "Annual meeting with NGO",  # Notes
+        ]
+    )
 
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs))
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs)
+    )
 
     event = create_event(db_session)
 
@@ -31,16 +40,21 @@ def test_create_event_view(db_session, test_client, monkeypatch, setup_db):
     assert event["location"] == "Paris"
     assert event["attendees"] == 100
 
+
 def test_display_event_list_view(db_session, test_client, monkeypatch, setup_db):
     """
     Test display_event_list view
     """
-    prompt_inputs = iter([
-        "",               # Push enter to continue
-        "1",              # Choose to display all events
-    ])
+    prompt_inputs = iter(
+        [
+            "",  # Push enter to continue
+            "1",  # Choose to display all events
+        ]
+    )
 
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs))
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs)
+    )
 
     # create a fake event
     event_controller = EventController(db_session)
@@ -51,7 +65,7 @@ def test_display_event_list_view(db_session, test_client, monkeypatch, setup_db)
         "location": "Paris",
         "attendees": 100,
         "notes": "Annual meeting with NGO",
-        "support_id": "1"
+        "support_id": "1",
     }
     event = event_controller.create_event(event_data)
     event_list = event_controller.get_events(db_session, support_only=False)
@@ -59,6 +73,7 @@ def test_display_event_list_view(db_session, test_client, monkeypatch, setup_db)
     monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: "")
 
     assert True
+
 
 def test_select_event_view(monkeypatch, db_session):
     """
@@ -74,23 +89,28 @@ def test_select_event_view(monkeypatch, db_session):
         "location": "Paris",
         "attendees": 100,
         "notes": "Annual meeting with NGO",
-        "support_id": str(uuid.uuid4())
+        "support_id": str(uuid.uuid4()),
     }
 
     event = controller.create_event(event_data)
     event_list = controller.get_events(db_session, support_only=False)
-    prompt_value = iter([
-        "",  # enter key to continue
-        "1",  # select event menu
-        "1",  # select event index
-        "y",  # confirm selection
-        "" # enter key to continue
-    ])
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_value))
+    prompt_value = iter(
+        [
+            "",  # enter key to continue
+            "1",  # select event menu
+            "1",  # select event index
+            "y",  # confirm selection
+            "",  # enter key to continue
+        ]
+    )
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_value)
+    )
     monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: True)
     selected_event = event_views.select_event(event_list)
     assert selected_event is not None
     assert selected_event.id == event.id
+
 
 def test_update_event_view(db_session, test_client, monkeypatch, setup_db):
     """
@@ -109,29 +129,33 @@ def test_update_event_view(db_session, test_client, monkeypatch, setup_db):
         "location": "Paris",
         "attendees": 100,
         "notes": "Annual meeting with NGO",
-        "support_id": setup_db["user"].id
+        "support_id": setup_db["user"].id,
     }
 
     event = event_controller.create_event(event_data)
 
     # Update Phase
-    prompt_inputs_update = iter([
-        "01-05-2025",     # Date start
-        "06-05-2025",     # Date end
-        "Nancy",          # Location
-        "130",            # attendees
-        "Annual meeting with NGO",  # Notes
-    ])
+    prompt_inputs_update = iter(
+        [
+            "01-05-2025",  # Date start
+            "06-05-2025",  # Date end
+            "Nancy",  # Location
+            "130",  # attendees
+            "Annual meeting with NGO",  # Notes
+        ]
+    )
 
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs_update))
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_inputs_update)
+    )
     monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: True)
-
 
     updated_data = update_event(event, db_session, is_support_user=True)
 
     assert updated_data is not None
     assert updated_data["location"] == "Nancy"
     assert updated_data["attendees"] == 130
+
 
 def test_delete_event_view(monkeypatch, db_session):
     """
@@ -148,18 +172,22 @@ def test_delete_event_view(monkeypatch, db_session):
         "location": "Paris",
         "attendees": 100,
         "notes": "Annual meeting with NGO",
-        "support_id": str(uuid.uuid4())
+        "support_id": str(uuid.uuid4()),
     }
     event = controller.create_event(event_data)
     event_list = controller.get_events(db_session, support_only=False)
-    prompt_value = iter([
-        "",  # enter key to continue
-        "1",  # select event menu
-        "1",  # select event index
-        "y",  # confirm deletion
-        "",
-    ])
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_value))
+    prompt_value = iter(
+        [
+            "",  # enter key to continue
+            "1",  # select event menu
+            "1",  # select event index
+            "y",  # confirm deletion
+            "",
+        ]
+    )
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_value)
+    )
     monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: True)
     result = delete_event(event, db_session)
     db_session.expire_all()

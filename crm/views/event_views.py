@@ -1,4 +1,3 @@
-import os
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
@@ -12,7 +11,7 @@ from crm.controllers.event_controller import EventController
 from crm.controllers.contract_controller import ContractController
 from crm.controllers.user_controller import UserController
 from crm.views.contract_views import select_contract
-from crm.views.user_views import select_user, select_support_user
+from crm.views.user_views import select_support_user
 from crm.utils.console import clear_console
 
 console = Console()
@@ -228,10 +227,14 @@ def delete_event(event, db_session):
                 console.print("[bold green]✅ Événement supprimé avec succès ![/]")
                 return True
             else:
-                console.print("[bold red]❌ Échec de la suppression de l'événement ![/]")
+                console.print(
+                    "[bold red]❌ Échec de la suppression de l'événement ![/]"
+                )
         except Exception as e:
             capture_exception(e)
-            console.print("[bold red]❌ Erreur lors de la suppression de l'événement :[/]", e)
+            console.print(
+                "[bold red]❌ Erreur lors de la suppression de l'événement :[/]", e
+            )
 
     return False
 
