@@ -1,5 +1,4 @@
 from rich.console import Console
-from crm.views.views import clear_console
 from rich.table import Table
 from rich.prompt import Prompt, Confirm
 from rich.panel import Panel

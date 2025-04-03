@@ -3,6 +3,7 @@ import uuid
 from crm.controllers import UserController
 from crm.models.models import User
 
+
 def test_create_user(db_session):
     """
     Test creating a user
@@ -23,6 +24,7 @@ def test_create_user(db_session):
     assert isinstance(user, User)
     assert user.username == "test_user"
 
+
 def test_get_user(db_session):
     """
     Test getting a user
@@ -32,6 +34,7 @@ def test_get_user(db_session):
     controller = UserController(db_session)
     users = controller.get_all_users()
     assert isinstance(users, list)
+
 
 def test_update_user(db_session):
     """
@@ -54,12 +57,13 @@ def test_update_user(db_session):
     user = controller.create_user(user_data)
     updated_data = {
         "username": "test_user_updated",
-        "email": "test-update-user@gmail.com"
+        "email": "test-update-user@gmail.com",
     }
 
     updated_user = controller.update_user(user.id, updated_data)
     assert updated_user.username == "test_user_updated"
     assert updated_user.email == "test-update-user@gmail.com"
+
 
 def test_delete_user(db_session):
     """
@@ -80,6 +84,7 @@ def test_delete_user(db_session):
     user = controller.create_user(user_data)
     result = controller.delete_user(user.id)
     assert result is True
+
 
 def test_get_all_support_users(db_session):
     """
@@ -102,6 +107,7 @@ def test_get_all_support_users(db_session):
     support_user = controller.create_user(support_user_data)
     support_users = controller.get_all_support_users()
     assert isinstance(support_users, list)
+
 
 def test_get_all_commercial_users(db_session):
     """

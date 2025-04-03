@@ -1,32 +1,47 @@
 import pytest
 import uuid
-from crm.views.user_views import create_user, display_user_list, select_user, update_user
+from crm.views.user_views import (
+    create_user,
+    display_user_list,
+    select_user,
+    update_user,
+    delete_user,
+)
 from crm.controllers.user_controller import UserController
-from crm.models.models import User
+from crm.models.models import User, Role
 
 
 def test_create_user_view(db_session, monkeypatch, setup_db):
     """
     Test create_user view
     """
-    prompt_values = iter([
-        "JohnDoe",              # Nom d'utilisateur
-        "johndoe@example.com",  # Email
-        "0687909867",           # Téléphone
-        "1",                    # Rôle
-        "password123",          # Mot de passe
-    ])
+    prompt_values = iter(
+        [
+            "JohnDoe",  # Nom d'utilisateur
+            "johndoe@example.com",  # Email
+            "0687909867",  # Téléphone
+            "1",  # Rôle
+            "password123",  # Mot de passe
+        ]
+    )
 
-    input_values = iter([
-        "y",                    # is_active (Confirm.ask)
-        "",                     # Appui Entrée
-    ])
+    input_values = iter(
+        [
+            "y",  # is_active (Confirm.ask)
+            "",  # Appui Entrée
+        ]
+    )
 
     # All Prompt.ask
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values))
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values)
+    )
 
     # Confirm.ask
-    monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: next(input_values).lower() in ["y", "yes"])
+    monkeypatch.setattr(
+        "rich.prompt.Confirm.ask",
+        lambda *args, **kwargs: next(input_values).lower() in ["y", "yes"],
+    )
 
     user_data = create_user(db_session)
 
@@ -37,6 +52,7 @@ def test_create_user_view(db_session, monkeypatch, setup_db):
     assert user_data["is_active"] is True
     assert user_data["role_name"] == "Gestion"
     assert user_data["password"] == "password123"
+
 
 def test_display_user_list_view(db_session, setup_db, capsys):
     """
@@ -62,6 +78,7 @@ def test_display_user_list_view(db_session, setup_db, capsys):
     display_user_list(users)
     captured = capsys.readouterr()
     assert "JohnDoe" in captured.out
+
 
 def test_select_user_view(db_session, setup_db, monkeypatch):
     """
@@ -89,6 +106,7 @@ def test_select_user_view(db_session, setup_db, monkeypatch):
     selected_user = select_user(users)
     assert selected_user == users[0]
 
+
 def test_update_user_view(db_session, setup_db, monkeypatch):
     """
     Test update_user view
@@ -107,18 +125,63 @@ def test_update_user_view(db_session, setup_db, monkeypatch):
     db_session.add(user)
     db_session.commit()
 
-    prompt_values = iter([
-        "JaneDoe",              # Nom d'utilisateur
-        "jane@gmail.com",       # Email
-        "0687909867",           # Téléphone
-        "y",                    # is_active (Confirm.ask)
-        "1",                    # Role - Gestion
-        ""
-    ])
+    prompt_values = iter(
+        [
+            "JaneDoe",  # Nom d'utilisateur
+            "jane@gmail.com",  # Email
+            "0687909867",  # Téléphone
+            "y",  # is_active (Confirm.ask)
+            "1",  # Role - Gestion
+            "",
+        ]
+    )
 
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values))
-    monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: next(prompt_values).lower() in ["y", "yes"])
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values)
+    )
+    monkeypatch.setattr(
+        "rich.prompt.Confirm.ask",
+        lambda *args, **kwargs: next(prompt_values).lower() in ["y", "yes"],
+    )
 
     updated_user = update_user(user, db_session)
 
     assert updated_user["username"] == "JaneDoe"
+
+
+def test_delete_user_view(monkeypatch, db_session):
+    """
+    Test delete_user view
+    """
+    gestion_role = Role(role_name="Gestion")
+    db_session.add(gestion_role)
+    db_session.commit()
+
+    controller = UserController(db_session)
+
+    # Create a user
+    user_data = {
+        "id": str(uuid.uuid4()),
+        "username": "JohnDoe",
+        "email": "johndoe@gmail.com",
+        "phone_number": "0687909867",
+        "is_active": True,
+        "role_name": "Gestion",
+        "hashed_password": "password",
+    }
+
+    user = User(**user_data)
+    db_session.add(user)
+    db_session.commit()
+    assert user is not None
+
+    # mock the user selection and confirmation
+    monkeypatch.setattr("crm.views.user_views.select_user", lambda users: user)
+    monkeypatch.setattr("rich.prompt.Confirm.ask", lambda *args, **kwargs: True)
+
+    confirmed = delete_user(user)
+    if confirmed:
+        controller.delete_user(user.id)
+    users = controller.get_all_users()
+    assert user not in users
+    assert len(users) == 0

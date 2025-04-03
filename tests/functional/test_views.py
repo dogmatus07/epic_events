@@ -11,12 +11,15 @@ def test_authenticate_user_view(monkeypatch, mocker):
 
     # Mock the Prompt.ask function
     prompt_values = iter(["test@example.com", "password"])
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values))
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values)
+    )
 
     # mock SessionLocal
     mock_db_session = mocker.Mock()
-    mock_session_local = mocker.patch("crm.views.views.SessionLocal", return_value=mock_db_session)
-
+    mock_session_local = mocker.patch(
+        "crm.views.views.SessionLocal", return_value=mock_db_session
+    )
 
     # Mock the AuthManager.authenticate function
     mock_auth_manager = mocker.patch("crm.views.views.AuthManager")
@@ -26,6 +29,7 @@ def test_authenticate_user_view(monkeypatch, mocker):
     token = authenticate_user()
     assert token == "FAKE TOKEN"
 
+
 def test_display_menu_view(monkeypatch, mocker):
     """
     Test the display_menu view
@@ -33,7 +37,9 @@ def test_display_menu_view(monkeypatch, mocker):
 
     # Mock the Prompt.ask function
     prompt_values = iter(["1"])
-    monkeypatch.setattr("rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values))
+    monkeypatch.setattr(
+        "rich.prompt.Prompt.ask", lambda *args, **kwargs: next(prompt_values)
+    )
 
     # Mock the console object
     mock_console = mocker.Mock()

@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 from passlib.hash import bcrypt
 from sqlalchemy.dialects.sqlite import TEXT
 from sqlalchemy import (
