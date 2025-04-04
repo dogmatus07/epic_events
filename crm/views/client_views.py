@@ -154,7 +154,6 @@ def select_client(clients):
 def update_client(db_session):
     """
     display a form for updating a client
-    :param client:
     :return: updated client data
     :param db_session: database session
     """
